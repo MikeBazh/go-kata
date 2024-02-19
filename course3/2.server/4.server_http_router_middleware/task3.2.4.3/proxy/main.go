@@ -48,7 +48,7 @@ func redirectMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		if strings.HasPrefix(r.URL.Path, "/") && r.URL.Path != "/api/" {
+		if strings.HasPrefix(r.URL.Path, "/") {
 			// перенаправляем запрос на http://hugo:1313
 			proxy := NewReverseProxy("hugo", "1313")
 			proxy.ServeHTTP(w, r)
