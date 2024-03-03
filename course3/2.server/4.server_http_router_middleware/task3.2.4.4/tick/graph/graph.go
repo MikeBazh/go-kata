@@ -16,8 +16,6 @@ type Node struct {
 }
 
 // generateGraph генерирует случайный граф с numNodes узлами
-// generateGraph генерирует случайный граф с numNodes узлами
-// generateGraph генерирует случайный граф с numNodes узлами
 func generateGraph(numNodes int) []*Node {
 	rand.Seed(time.Now().UnixNano())
 
@@ -60,9 +58,9 @@ func isLinked(node1, node2 *Node) bool {
 	return false
 }
 
-func MCode() string {
+func MCode(numNodes int) string {
 	//numNodes := rand.Intn(26) + 5
-	numNodes := 5
+	//numNodes := 5
 	graph := generateGraph(numNodes)
 
 	// Генерация кода Mermaid и запись его в строку
@@ -94,7 +92,3 @@ func MCode() string {
 	fmt.Println(mermaidCode.String())
 	return mermaidCode.String()
 }
-
-//func main() {
-//	fmt.Println(MCode())
-//}
