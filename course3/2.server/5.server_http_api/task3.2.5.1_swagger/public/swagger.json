@@ -36,6 +36,12 @@
         "responses": {
           "200": {
             "$ref": "#/responses/GeocodeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
           }
         }
       }
@@ -60,6 +66,12 @@
         "responses": {
           "200": {
             "$ref": "#/responses/SearchResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
           }
         }
       }
@@ -477,11 +489,17 @@
     }
   },
   "responses": {
+    "BadRequestResponse": {
+      "description": "Ошибка, неверный формат запроса."
+    },
     "GeocodeResponse": {
       "description": "Pезультат поиска по координатам.",
       "schema": {
         "$ref": "#/definitions/GeocodeResponse"
       }
+    },
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера: сервис https://dadata.ru не доступен."
     },
     "SearchResponse": {
       "description": "Pезультат поиска по адресу.",

@@ -32,6 +32,8 @@ import (
 //
 //  responses:
 //   200: SearchResponse
+//   400: BadRequestResponse
+//   500: InternalServerErrorResponse
 
 // swagger:parameters SearchRequest
 type SearchRequest struct {
@@ -47,11 +49,25 @@ type SearchResponse struct {
 	Body Dadata.SearchResponse
 }
 
+// Ошибка, неверный формат запроса.
+// swagger:response BadRequestResponse
+type BadRequestResponse struct {
+	// Ошибка, неверный формат запроса.
+}
+
+// Внутренняя ошибка сервера: сервис https://dadata.ru не доступен.
+// swagger:response InternalServerErrorResponse
+type InternalServerErrorResponse struct {
+	// Внутренняя ошибка сервера: сервис https://dadata.ru не доступен.
+}
+
 // swagger:route POST /api/address/geocode geocode GeocodeRequest
 // Поиск по координатам.
 //
 //  responses:
 //   200: GeocodeResponse
+//   400: BadRequestResponse
+//   500: InternalServerErrorResponse
 
 // Pезультат поиска по координатам.
 // swagger:response GeocodeResponse
@@ -65,6 +81,18 @@ type GeocodeRequest struct {
 	// запрос для поиска по координатам.
 	// in: body
 	Body Handlers.GeocodeRequest
+}
+
+// Ошибка, неверный формат запроса.
+// swagger:response BadRequestResponse
+type BadRequestResponseGeo struct {
+	// Ошибка, неверный формат запроса.
+}
+
+// Внутренняя ошибка сервера: сервис https://dadata.ru не доступен.
+// swagger:response InternalServerErrorResponse
+type InternalServerErrorResponseGeo struct {
+	// Внутренняя ошибка сервера: сервис https://dadata.ru не доступен.
 }
 
 //go:generate swagger generate spec -o ../public/swagger.json --scan-models
