@@ -1,4 +1,4 @@
-package temp1
+package graph
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ type Node struct {
 	Links []*Node
 }
 
-// generateGraph генерирует случайный граф с numNodes узлами
-func generateGraph(numNodes int) []*Node {
+// GenerateGraph генерирует случайный граф с numNodes узлами
+func GenerateGraph(numNodes int) []*Node {
 	rand.Seed(time.Now().UnixNano())
 
 	// Создаем узлы графа
@@ -58,10 +58,7 @@ func isLinked(node1, node2 *Node) bool {
 	return false
 }
 
-func MCode(numNodes int) string {
-	//numNodes := rand.Intn(26) + 5
-	//numNodes := 5
-	graph := generateGraph(numNodes)
+func Mermaid(numNodes int, graph []*Node) string {
 
 	// Генерация кода Mermaid и запись его в строку
 	var mermaidCode strings.Builder
@@ -71,24 +68,22 @@ func MCode(numNodes int) string {
 
 		// Форматируем имя узла в зависимости от его формы
 		if node.Form == "round-rect" {
-			mermaidCode.WriteString(fmt.Sprintf("  %s(%s%s)\n", nodeID, node.Form, node.Name))
+			mermaidCode.WriteString(fmt.Sprintf("%s(%s)\n", nodeID, node.Form))
 		} else if node.Form == "circle" {
-			mermaidCode.WriteString(fmt.Sprintf("  %s((%s%s))\n", nodeID, node.Form, node.Name))
+			mermaidCode.WriteString(fmt.Sprintf("%s((%s))\n", nodeID, node.Form))
 			//} else if node.Form == "square" {
 			//	mermaidCode.WriteString(fmt.Sprintf("  %s[%s]\n", nodeID, node.Form))
 		} else if node.Form == "rect" {
-			mermaidCode.WriteString(fmt.Sprintf("  %s[%s%s]\n", nodeID, node.Form, node.Name))
+			mermaidCode.WriteString(fmt.Sprintf("%s[%s]\n", nodeID, node.Form))
 		} else if node.Form == "rhombus" {
-			mermaidCode.WriteString(fmt.Sprintf("  %s{%s%s}\n", nodeID, node.Form, node.Name))
+			mermaidCode.WriteString(fmt.Sprintf("%s{%s}\n", nodeID, node.Form))
 		}
 
 		for _, link := range node.Links {
 			linkID := fmt.Sprintf("Node%d", link.ID)
-			mermaidCode.WriteString(fmt.Sprintf("  %s --> %s\n", nodeID, linkID))
+			mermaidCode.WriteString(fmt.Sprintf("%s --> %s\n", nodeID, linkID))
 		}
 	}
 
-	// Вывод кода Mermaid
-	fmt.Println(mermaidCode.String())
 	return mermaidCode.String()
 }
