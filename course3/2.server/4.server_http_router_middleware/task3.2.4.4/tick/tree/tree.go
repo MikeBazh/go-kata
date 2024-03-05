@@ -29,7 +29,7 @@ func (t *AVLTree) Insert(key int) {
 func (t *AVLTree) ToMermaid() string {
 	var builder strings.Builder
 
-	builder.WriteString("graph TD;\n")
+	builder.WriteString("graph TD\n")
 
 	if t.Root != nil {
 		generateMermaid(t.Root, &builder)
@@ -109,7 +109,6 @@ func insert(node *Node, key int) *Node {
 	} else if key > node.Key {
 		node.Right = insert(node.Right, key)
 	} else {
-		// Duplicate keys are not allowed
 		return node
 	}
 
@@ -144,7 +143,7 @@ func GenerateTree(count int) *AVLTree {
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < count; i++ {
-		key := rand.Intn(1000) // Change 100 to the desired range of keys
+		key := rand.Intn(1000)
 		tree.Insert(key)
 	}
 

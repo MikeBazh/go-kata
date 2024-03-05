@@ -31,20 +31,14 @@ func main() {
 	r.Get("/api/*", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello from API"))
 	})
-	t := Ticker()
-	go WorkerTree(t)
-	go WorkerTime(t)
-	go WorkerGraph(t)
+	go WorkerTree()
+	go WorkerTime()
+	go WorkerGraph()
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println(err)
 	}
-}
-
-func Ticker() *time.Ticker {
-	t := time.NewTicker(5 * time.Second)
-	return t
 }
 
 type ReverseProxy struct {
@@ -89,13 +83,14 @@ func (rp *ReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	proxy.ServeHTTP(w, r)
 }
 
-func WorkerTime(t *time.Ticker) {
+func WorkerTime() {
+	t := time.NewTicker(5 * time.Second)
 	var b byte = 0
 	for {
+		currentTime := time.Now()
+		formattedTime := currentTime.Format("2006-01-02 15:04:05")
 		select {
 		case <-t.C:
-			currentTime := time.Now()
-			formattedTime := currentTime.Format("2006-01-02 15:04:05")
 			err := os.WriteFile("/app/static/tasks/_index.md", []byte(fmt.Sprintf(htmlCodeIndex, formattedTime, b)), 0644)
 			if err != nil {
 				log.Println(err)
@@ -105,7 +100,8 @@ func WorkerTime(t *time.Ticker) {
 	}
 }
 
-func WorkerGraph(t *time.Ticker) {
+func WorkerGraph() {
+	t := time.NewTicker(5 * time.Second)
 	for {
 		select {
 		case <-t.C:
@@ -122,7 +118,8 @@ func WorkerGraph(t *time.Ticker) {
 	}
 }
 
-func WorkerTree(t *time.Ticker) {
+func WorkerTree() {
+	t := time.NewTicker(5 * time.Second)
 	rand.Seed(time.Now().UnixNano())
 	NewTree := tree.GenerateTree(5)
 	count := 5
