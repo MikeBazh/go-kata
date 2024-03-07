@@ -12,8 +12,6 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	"go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Handlers"
@@ -62,14 +60,6 @@ const (
 `
 )
 
-var tokenAuth *jwtauth.JWTAuth
-var users = make(map[string]string)
-
-type RegisterRequest struct {
-	Login string `json:"login"`
-	Pass  string `json:"pass"`
-}
-
 func swaggerUI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tmpl, err := template.New("swagger").Parse(swaggerTemplate)
@@ -86,67 +76,23 @@ func swaggerUI(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HandlerRegister(w http.ResponseWriter, r *http.Request) {
-	var NewRequest RegisterRequest
-	err := json.NewDecoder(r.Body).Decode(&NewRequest)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	users[NewRequest.Login] = NewRequest.Pass
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte("Пользователь зарегестрирован"))
-}
-
-func HandlerLogin(w http.ResponseWriter, r *http.Request) {
-	var NewRequest RegisterRequest
-	err := json.NewDecoder(r.Body).Decode(&NewRequest)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	password, exists := users[NewRequest.Login]
-	if !exists || password != NewRequest.Pass {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		return
-	}
-	// Генерация JWT токена
-	_, tokenString, err := tokenAuth.Encode(jwt.MapClaims{"sub": NewRequest.Login})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	// Отправка токена в ответе
-	response := map[string]string{"token": tokenString}
-	//response["token"] = tokenString
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
-	//json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
-}
-
 func main() {
 
 	r := chi.NewRouter()
 	// Создание экземпляра аутентификации JWT
-	tokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
+	Handlers.TokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 
-	r.Post("/api/register", HandlerRegister)
-	r.Post("/api/login", HandlerLogin)
+	r.Post("/api/register", Handlers.HandlerRegister)
+	r.Post("/api/login", Handlers.HandlerLogin)
 	r.Get("/swagger/index.html", swaggerUI)
 	r.Get("/public/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/public/", http.FileServer(http.Dir("./2.server/5.server_http_api/task3.2.5.1_JWT/public"))).ServeHTTP(w, r)
 	})
 
 	r.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(tokenAuth))
-		r.Use(jwtauth.Authenticator)
+		r.Use(jwtauth.Verifier(Handlers.TokenAuth))
+		//r.Use(jwtauth.Authenticator)
+		r.Use(Handlers.UnauthorizedToForbidden)
 
 		r.Post("/api/address/search", Handlers.HandlerSearchByQuery)
 		r.Post("/api/address/geocode", Handlers.HandlerSearchByGeo)
@@ -165,3 +111,12 @@ func main() {
 
 //Функционал должен быть покрыт тестами на 90%.
 //Решение расположи в отдельном проекте
+
+//"200": {
+//"description": "Пользователь зарегистрирован."
+
+//"RegisterResponse": {
+//"description": "успешная регистрация нового пользователя.",
+//"schema": {
+//"type": "string",
+//"example": "Пользователь зарегистрирован"

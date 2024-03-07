@@ -18,6 +18,13 @@
   "paths": {
     "/api/address/geocode": {
       "post": {
+        "security": [
+          {
+            "bearerAuth": [
+              "[]"
+            ]
+          }
+        ],
         "tags": [
           "geocode"
         ],
@@ -36,12 +43,28 @@
         "responses": {
           "200": {
             "$ref": "#/responses/GeocodeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
           }
         }
       }
     },
     "/api/address/search": {
       "post": {
+        "security": [
+          {
+            "bearerAuth": [
+              "[]"
+            ]
+          }
+        ],
         "tags": [
           "search"
         ],
@@ -52,6 +75,7 @@
             "description": "запрос для поиска по адресу.",
             "name": "Body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/SearchRequest"
             }
@@ -60,6 +84,63 @@
         "responses": {
           "200": {
             "$ref": "#/responses/SearchResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "tags": [
+          "login"
+        ],
+        "summary": "Аутентификация пользователя.",
+        "operationId": "LoginRequest",
+        "parameters": [
+          {
+            "description": "запрос для аутентификации пользователя.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/LoginResponse"
+          }
+        }
+      }
+    },
+    "/api/register": {
+      "post": {
+        "tags": [
+          "register"
+        ],
+        "summary": "Регистрация нового пользователя.",
+        "operationId": "RegisterRequest",
+        "parameters": [
+          {
+            "description": "запрос для регистрации пользователя.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/RegisterResponse"
           }
         }
       }
@@ -81,7 +162,21 @@
           "x-go-name": "Value"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_swagger/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Dadata"
+    },
+    "AuthToken": {
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "description": "Токен для аутентификации пользователя.\nin: header\nname: Authorization",
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/docs"
     },
     "Data": {
       "type": "object",
@@ -423,7 +518,7 @@
           "x-go-name": "UnparsedParts"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_swagger/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Dadata"
     },
     "GeocodeRequest": {
       "type": "object",
@@ -437,7 +532,7 @@
           "x-go-name": "Lng"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_swagger/Handlers"
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Handlers"
     },
     "GeocodeResponse": {
       "type": "object",
@@ -450,7 +545,21 @@
           "x-go-name": "Addresses"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_swagger/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Dadata"
+    },
+    "RegisterRequest": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "x-go-name": "Login"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Handlers"
     },
     "SearchRequest": {
       "type": "object",
@@ -460,7 +569,7 @@
           "x-go-name": "Query"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_swagger/Handlers"
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Handlers"
     },
     "SearchResponse": {
       "type": "object",
@@ -473,14 +582,36 @@
           "x-go-name": "Addresses"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_swagger/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Dadata"
     }
   },
   "responses": {
+    "BadRequestResponse": {
+      "description": "Ошибка, неверный формат запроса."
+    },
+    "Forbidden": {
+      "description": "Токен авторизации отсутствует или не валиден."
+    },
     "GeocodeResponse": {
       "description": "Pезультат поиска по координатам.",
       "schema": {
         "$ref": "#/definitions/GeocodeResponse"
+      }
+    },
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера: сервис https://dadata.ru не доступен."
+    },
+    "LoginResponse": {
+      "description": "получен токен авторизации (в формате: Bearer + токен) или ошибка входа.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "RegisterResponse": {
+      "description": "успешная регистрация нового пользователя.",
+      "schema": {
+        "type": "string",
+        "example": "Пользователь зарегистрирован"
       }
     },
     "SearchResponse": {
@@ -488,11 +619,19 @@
       "schema": {
         "$ref": "#/definitions/SearchResponse"
       }
+    },
+    "Unauthorized": {
+      "description": "Пользователь не авторизирован."
     }
   },
   "securityDefinitions": {
     "basic": {
       "type": "basic"
+    },
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }
