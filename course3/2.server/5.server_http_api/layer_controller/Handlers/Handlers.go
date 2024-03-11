@@ -19,8 +19,10 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
+
 var users = make(map[string]string)
 var TokenAuth *jwtauth.JWTAuth
+
 
 type Servicer interface {
 	RegisterUser(login, password string) error
@@ -44,3 +46,5 @@ func (s *Service) RegisterUser(login, password string) error {
 	//fmt.Println("written!!")
 	return nil
 }
+
+
