@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  server:
+    build: .
+    restart: always
+    volumes:
+      - "./public:/app/public"
+    ports:
+      - 8080:8080
