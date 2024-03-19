@@ -1,0 +1,236 @@
+{
+  "swagger": "2.0",
+  "info": {},
+  "paths": {
+    "/api/users": {
+      "get": {
+        "tags": [
+          "list"
+        ],
+        "summary": "Вывод списка пользователей.",
+        "operationId": "ListUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "limit",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "name": "offset",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/RequestUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/users/post": {
+      "post": {
+        "tags": [
+          "request"
+        ],
+        "summary": "Добавление нового пользователя.",
+        "operationId": "RequestUser",
+        "parameters": [
+          {
+            "description": "запрос для добавления пользователя.",
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/RequestUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/users/update": {
+      "post": {
+        "tags": [
+          "update"
+        ],
+        "summary": "Обновление информации о пользователя.",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "description": "запрос для обновления пользователя (данные пользователя с именем name будут обновлены).",
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/UpdateUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": [
+          "get"
+        ],
+        "summary": "Получение пользователя по ID.",
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "get"
+        ],
+        "summary": "Удаление пользователя по ID.",
+        "operationId": "DeleteUser",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/DeleteUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RequestUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/task_repository/dto"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "deleted": {
+          "type": "boolean",
+          "x-go-name": "Deleted"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/task_repository/dto"
+    }
+  },
+  "responses": {
+    "BadRequestResponse": {
+      "description": "Ошибка, неверный формат запроса."
+    },
+    "DeleteUserResponse": {
+      "description": "Pезультат запроса по ID.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "GetUserResponse": {
+      "description": "Pезультат запроса по ID.",
+      "schema": {
+        "$ref": "#/definitions/User"
+      }
+    },
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера 5."
+    },
+    "ListUsers": {
+      "description": "Pезультат запроса списка пользователей.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "RequestUserResponse": {
+      "description": "Pезультат запроса на добавление.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "UpdateUserResponse": {
+      "description": "Pезультат запроса на обновление.",
+      "schema": {
+        "type": "string"
+      }
+    }
+  }
+}
