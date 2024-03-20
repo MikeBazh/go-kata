@@ -78,6 +78,11 @@ SET email = $2 WHERE name = $1`, user.Name, user.Email)
 
 // GetByID - получение пользователя по ID из БД
 func (s *UserStorage) GetByID(userID int) (user dto.User, err error) {
+	err = CreateTable()
+	if err != nil {
+		fmt.Println(err)
+		return dto.User{}, err
+	}
 	// Устанавливаем соединение с базой данных
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -138,26 +143,41 @@ func (s *UserStorage) List(limit, offset int) ([]dto.User, error) {
 	return users, err
 }
 
-// Create - создание пользователя в БД
+// Create - создание таблицы и добавление пользователей в БД
 func CreateTable() error {
 	// Устанавливаем соединение с базой данных PostgreSQL
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	defer db.Close()
-	// Создаем таблицу
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR,
-    email VARCHAR,
-    deleted BOOLEAN DEFAULT false
-  )`)
-	//_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser1", "email1@mail.com")
-	//_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser2", "email2@mail.com")
-
+	// Проверяем существование таблицы
+	var tableExists bool
+	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", "users").Scan(&tableExists)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return err
+	// Если таблица не существует, создаем её
+	if !tableExists {
+		_, err = db.Exec(`CREATE TABLE users (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR,
+            email VARCHAR,
+            deleted BOOLEAN DEFAULT false
+        )`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Добавляем пользователей
+		_, err = db.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", "TestUser1", "email1@mail.com")
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = db.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", "TestUser2", "email2@mail.com")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Таблица создана и тестовые пользователи добавлены.")
+	}
+	return nil
 }
