@@ -9,12 +9,11 @@ import (
 )
 
 type UserRepository interface {
-	Create(user dto.User) error
+	Create(user dto.RequestUser) error
 	GetByID(id int) (dto.User, error)
-	Update(user dto.User) error
+	Update(user dto.RequestUser) error
 	Delete(id int) error
-	List(l, o string) ([]dto.User, error)
-	CreateTable() error
+	List(limit, offset int) ([]dto.User, error)
 	// Другие методы, необходимые для работы с пользователями
 }
 
@@ -29,46 +28,22 @@ const (
 	connStr = "host=db user=postgres password=123 dbname=postgres sslmode=disable"
 )
 
-// NewUserStorage - конструктор хранилища пользователей
-func NewUserStorage() *UserStorage {
+func NewUserStorage() UserRepository {
 	return &UserStorage{}
 }
 
 // Create - создание пользователя в БД
-func (s *UserStorage) CreateTable() error {
-	// Устанавливаем соединение с базой данных PostgreSQL
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	// Создаем таблицу
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR,
-    email VARCHAR,
-    deleted BOOLEAN DEFAULT false
-  )`)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return err
-}
-
-// Create - создание пользователя в БД
 func (s *UserStorage) Create(user dto.RequestUser) error {
-	err := s.CreateTable()
+	err := CreateTable()
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("таблица создана")
 	// Устанавливаем соединение с базой данных PostgreSQL
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Println(err)
 		return err
-		//log.Fatal(err)
 	}
 	defer db.Close()
 	// Вставляем данные в таблицу
@@ -77,6 +52,7 @@ func (s *UserStorage) Create(user dto.RequestUser) error {
 		return err
 		//log.Fatal(err)
 	}
+	fmt.Println("пользователь", user.Name, " добавлен")
 	return err
 }
 
@@ -93,12 +69,16 @@ func (s *UserStorage) Update(user dto.RequestUser) error {
 	// Обновляем данные в таблице
 	_, err = db.Exec(`UPDATE users 
 SET email = $2 WHERE name = $1`, user.Name, user.Email)
-	return err
+	if err != nil {
+		return err
+	}
+	//fmt.Println("данные пользователя", user.Name, " обновлены")
+	return nil
 }
 
 // GetByID - получение пользователя по ID из БД
 func (s *UserStorage) GetByID(userID int) (user dto.User, err error) {
-	// Устанавливаем соединение с базой данных PostgreSQL
+	// Устанавливаем соединение с базой данных
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return dto.User{}, err
@@ -107,44 +87,28 @@ func (s *UserStorage) GetByID(userID int) (user dto.User, err error) {
 
 	row := db.QueryRow(`SELECT * FROM users WHERE id=$1`, userID)
 	err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Deleted)
-	//if user.Deleted {
-	//	err = fmt.Errorf("user не существует (удален)")
-	fmt.Println(err)
-	//	return user, err
-	//}
-	return user, err
+	return user, nil
 }
 
 // Delete(id string) error
 func (s *UserStorage) Delete(userID int) error {
 	// Устанавливаем соединение с базой данных PostgreSQL
 	db, err := sql.Open("postgres", connStr)
-	//if err != nil {
-	//	return dto.User{}, err
-	//}
 	defer db.Close()
-	//var user dto.User
-	//row := db.QueryRow(`SELECT * FROM users WHERE id=$1`, userID)
-	//err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Deleted)
-	//if user.Deleted {
-	//	err = fmt.Errorf("пользователь уже удален")
-	//	fmt.Println(err)
-	//	return err
-	//}
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 	_, err = db.Exec(`UPDATE users SET deleted = true WHERE id=$1`, userID)
-	fmt.Println(err)
-	//err = row.Scan(&user.ID, &user.Name, &user.Email)
-	//if err != nil {
-	//	return dto.User{}, err
-	//}
 	return err
 }
 
 func (s *UserStorage) List(limit, offset int) ([]dto.User, error) {
+	err := CreateTable()
+	if err != nil {
+		fmt.Println(err)
+		return []dto.User{}, err
+	}
 	// Устанавливаем соединение с базой данных PostgreSQL
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -162,18 +126,38 @@ func (s *UserStorage) List(limit, offset int) ([]dto.User, error) {
 	}
 	defer rows.Close()
 
-	// Список пользователей
 	users := []dto.User{}
-
-	// Итерация по результатам запроса и добавление пользователей в список
 	for rows.Next() {
 		var user dto.User
 		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Deleted)
-		//http.Error(w, fmt.Sprintf("Ошибка сканирования строки результата: %v", err), http.StatusInternalServerError)
 		if err != nil {
 			return []dto.User{}, err
 		}
 		users = append(users, user)
 	}
 	return users, err
+}
+
+// Create - создание пользователя в БД
+func CreateTable() error {
+	// Устанавливаем соединение с базой данных PostgreSQL
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	// Создаем таблицу
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    email VARCHAR,
+    deleted BOOLEAN DEFAULT false
+  )`)
+	_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser1", "email1@mail.com")
+	_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser2", "email2@mail.com")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return err
 }

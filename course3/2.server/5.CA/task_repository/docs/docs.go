@@ -71,7 +71,7 @@ type BadRequestResponseGeo struct {
 	// Ошибка, неверный формат запроса.
 }
 
-// Внутренняя ошибка сервера 5.
+// Внутренняя ошибка сервера.
 // swagger:response InternalServerErrorResponse
 type InternalServerErrorResponseGeo struct {
 }
@@ -84,7 +84,7 @@ type InternalServerErrorResponseGeo struct {
 // in: path
 // required: true
 // name: id
-// type: integer
+// type: string
 //
 //  responses:
 //   200: GetUserResponse
@@ -92,7 +92,7 @@ type InternalServerErrorResponseGeo struct {
 //   500: InternalServerErrorResponse
 //
 
-// Pезультат запроса по ID.
+// Pезультат запроса по ID (если пользователь не существует или удален, передается структура с ID = 0).
 // swagger:response GetUserResponse
 type GetUserResponse struct {
 	// in: body
@@ -108,7 +108,7 @@ type GetUserResponse struct {
 // in: path
 // required: true
 // name: id
-// type: integer
+// type: string
 //
 //  responses:
 //   200: DeleteUserResponse
@@ -116,7 +116,7 @@ type GetUserResponse struct {
 //   500: InternalServerErrorResponse
 //
 
-// Pезультат запроса по ID.
+// Pезультат запроса на удаление по ID.
 // swagger:response DeleteUserResponse
 type DeleteUserResponse string
 
@@ -128,16 +128,16 @@ type DeleteUserResponse string
 // in: query
 // required: true
 // name: limit
-// type: integer
+// type: string
 //
 // +offset (path) - Offset
 // in: query
 // required: true
 // name: offset
-// type: integer
+// type: string
 //
 //  responses:
-//   200: RequestUserResponse
+//   200: ListUsers
 //   400: BadRequestResponse
 //   500: InternalServerErrorResponse
 //
@@ -147,3 +147,5 @@ type DeleteUserResponse string
 type ListUsers []dto.User
 
 //go:generate swagger generate spec -o ../public/swagger.json --scan-models
+
+//swagger serve -F=swagger public/swagger.json

@@ -33,83 +33,6 @@ func NewUserController(responder Responder, servicer services.Servicer) *UserCon
 	}
 }
 
-func (c *UserController) Register(w http.ResponseWriter, r *http.Request) {
-	// Предварительная обработка запроса
-	var requestBody RegisterRequest
-	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-		c.responder.ErrorBadRequest(w, err)
-		return
-	}
-
-	// Вызов метода сервиса для регистрации пользователя
-	if err := c.servicer.RegisterUser(requestBody.Login, requestBody.Password); err != nil {
-		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
-		return
-	}
-
-	// Отправка успешного ответа клиенту
-	c.responder.OutputJSON(w, "Пользователь зарегестрирован")
-}
-
-func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
-	// Предварительная обработка запроса
-	var requestBody RegisterRequest
-	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-		c.responder.ErrorBadRequest(w, err)
-		return
-	}
-
-	// Вызов метода сервиса для регистрации пользователя
-	respond, err := c.servicer.LoginUser(requestBody.Login, requestBody.Password)
-	if err != nil {
-		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
-		return
-	}
-
-	// Отправка успешного ответа клиенту
-	c.responder.OutputJSON(w, respond)
-}
-
-func (c *UserController) SearchByQuery(w http.ResponseWriter, r *http.Request) {
-	// Предварительная обработка запроса
-	var requestBody SearchRequest
-	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-		c.responder.ErrorBadRequest(w, err)
-		return
-	}
-
-	// Вызов метода сервиса для регистрации пользователя
-	respond, err := c.servicer.SearchByQuery(requestBody.Query)
-	if err != nil {
-		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
-		return
-	}
-	// Отправка успешного ответа клиенту
-	c.responder.OutputJSON(w, respond)
-}
-
-func (c *UserController) SearchByGeo(w http.ResponseWriter, r *http.Request) {
-	// Предварительная обработка запроса
-	var requestBody GeocodeRequest
-	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-		c.responder.ErrorBadRequest(w, err)
-		return
-	}
-
-	// Вызов метода сервиса для регистрации пользователя
-	respond, err := c.servicer.SearchByGeo(requestBody.Lat, requestBody.Lng)
-	if err != nil {
-		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
-		return
-	}
-	// Отправка успешного ответа клиенту
-	c.responder.OutputJSON(w, respond)
-}
-
 func (c *UserController) SwaggerUI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tmpl, err := template.New("swagger").Parse(swaggerTemplate)
@@ -135,7 +58,7 @@ func (c *UserController) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Вызов метода сервиса для регистрации пользователя
-	err := c.servicer.DbAddUser(requestBody)
+	err := c.servicer.AddUser(requestBody)
 	if err != nil {
 		// Обработка ошибок сервиса
 		c.responder.ErrorInternal(w, err)
@@ -167,20 +90,18 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (c *UserController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	// Извлекаем ID из URL пути
 	idStr := chi.URLParam(r, "id")
-	fmt.Println(r)
 	userID, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.responder.ErrorBadRequest(w, err)
+		return
 	}
-	fmt.Println("ID: ", userID)
-	//var user services.User
+	//fmt.Println("ID: ", userID)
 	// Вызов метода сервиса для регистрации пользователя
-	user, err := c.servicer.DbGetUserByID(userID)
-	//if err != nil {
-	//	fmt.Println("запрошен неcуществующий id")
-	//	c.responder.ErrorBadRequest(w, err)
-	//	return
-	//}
+	user, err := c.servicer.GetUserByID(userID)
+	if err != nil {
+		c.responder.ErrorInternal(w, err)
+		return
+	}
 	// Отправка успешного ответа клиенту
 	c.responder.OutputJSON(w, user)
 }
@@ -191,8 +112,9 @@ func (c *UserController) DeleteUserByID(w http.ResponseWriter, r *http.Request) 
 	userID, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.responder.ErrorBadRequest(w, err)
+		return
 	}
-	fmt.Println("ID: ", userID)
+	//fmt.Println("ID: ", userID)
 	// Вызов метода сервиса для регистрации пользователя
 	err = c.servicer.DeleteByID(userID)
 	if err != nil {
@@ -201,24 +123,23 @@ func (c *UserController) DeleteUserByID(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	// Отправка успешного ответа клиенту
-	c.responder.OutputJSON(w, "пользователь удален")
+	c.responder.OutputJSON(w, "пользователь c ID "+idStr+" удален")
 }
 
 func (c *UserController) List(w http.ResponseWriter, r *http.Request) {
-	// Извлекаем ID из URL пути
-	//limitStr := chi.URLParam(r, "limit")
-	//offsetStr := chi.URLParam(r, "offset")
+	// Извлекаем ID из URL
 	limitStr := r.URL.Query().Get("limit")
 	offsetStr := r.URL.Query().Get("offset")
-	fmt.Println(r)
 	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		c.responder.ErrorBadRequest(w, err)
+		return
+	}
 	offset, err := strconv.Atoi(offsetStr)
 	if err != nil {
 		c.responder.ErrorBadRequest(w, err)
+		return
 	}
-	fmt.Println("limit: ", limit)
-	fmt.Println("offset: ", offset)
-
 	// Вызов метода сервиса для вывода пользователей
 	users, err := c.servicer.List(limit, offset)
 	if err != nil {
@@ -229,8 +150,6 @@ func (c *UserController) List(w http.ResponseWriter, r *http.Request) {
 	// Отправка успешного ответа клиенту
 	c.responder.OutputJSON(w, users)
 }
-
-// Другие методы контроллера...
 
 const (
 	swaggerTemplate = `<!DOCTYPE html>

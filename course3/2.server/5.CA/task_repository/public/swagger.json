@@ -11,13 +11,13 @@
         "operationId": "ListUsers",
         "parameters": [
           {
-            "type": "integer",
+            "type": "string",
             "name": "limit",
             "in": "query",
             "required": true
           },
           {
-            "type": "integer",
+            "type": "string",
             "name": "offset",
             "in": "query",
             "required": true
@@ -25,7 +25,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/RequestUserResponse"
+            "$ref": "#/responses/ListUsers"
           },
           "400": {
             "$ref": "#/responses/BadRequestResponse"
@@ -107,7 +107,7 @@
         "operationId": "GetUser",
         "parameters": [
           {
-            "type": "integer",
+            "type": "string",
             "name": "id",
             "in": "path",
             "required": true
@@ -133,7 +133,7 @@
         "operationId": "DeleteUser",
         "parameters": [
           {
-            "type": "integer",
+            "type": "string",
             "name": "id",
             "in": "path",
             "required": true
@@ -197,19 +197,19 @@
       "description": "Ошибка, неверный формат запроса."
     },
     "DeleteUserResponse": {
-      "description": "Pезультат запроса по ID.",
+      "description": "Pезультат запроса на удаление по ID.",
       "schema": {
         "type": "string"
       }
     },
     "GetUserResponse": {
-      "description": "Pезультат запроса по ID.",
+      "description": "Pезультат запроса по ID (если пользователь не существует или удален, передается структура с ID = 0).",
       "schema": {
         "$ref": "#/definitions/User"
       }
     },
     "InternalServerErrorResponse": {
-      "description": "Внутренняя ошибка сервера 5."
+      "description": "Внутренняя ошибка сервера."
     },
     "ListUsers": {
       "description": "Pезультат запроса списка пользователей.",
