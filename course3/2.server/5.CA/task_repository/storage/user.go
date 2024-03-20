@@ -153,8 +153,8 @@ func CreateTable() error {
     email VARCHAR,
     deleted BOOLEAN DEFAULT false
   )`)
-	_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser1", "email1@mail.com")
-	_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser2", "email2@mail.com")
+	//_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser1", "email1@mail.com")
+	//_, err = db.Exec(`INSERT INTO users (name, email) VALUES ($1, $2)`, "TestUser2", "email2@mail.com")
 
 	if err != nil {
 		log.Fatal(err)
