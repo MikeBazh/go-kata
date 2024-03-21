@@ -155,7 +155,7 @@ func CreateTable() error {
 	var tableExists bool
 	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", "users").Scan(&tableExists)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	// Если таблица не существует, создаем её
 	if !tableExists {
@@ -166,16 +166,16 @@ func CreateTable() error {
             deleted BOOLEAN DEFAULT false
         )`)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		// Добавляем пользователей
 		_, err = db.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", "TestUser1", "email1@mail.com")
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		_, err = db.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", "TestUser2", "email2@mail.com")
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		fmt.Println("Таблица создана и тестовые пользователи добавлены.")
 	}
