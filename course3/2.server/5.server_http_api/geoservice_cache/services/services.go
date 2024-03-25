@@ -94,15 +94,28 @@ func (s *Service) SearchByQuery(Query string) (Dadata.SearchResponse, error) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		for _, address := range newSearchResponse.Addresses {
-			jsonAddress, err := json.Marshal(address)
-			RespondHistoryID, err := s.UserStorage.CreateRespondHistory(jsonAddress, address.UnrestrictedValue)
+		//Обработка "пустого ответа"
+		if newSearchResponse.Addresses == nil {
+			jsonAddress, err := json.Marshal(Dadata.Address{})
+			RespondHistoryID, err := s.UserStorage.CreateRespondHistory(jsonAddress, " ")
 			if err != nil {
 				fmt.Println(err)
 			}
 			err = s.UserStorage.CreateHistorySearch(SearchHistoryID, RespondHistoryID)
 			if err != nil {
 				fmt.Println(err)
+			}
+		} else {
+			for _, address := range newSearchResponse.Addresses {
+				jsonAddress, err := json.Marshal(address)
+				RespondHistoryID, err := s.UserStorage.CreateRespondHistory(jsonAddress, address.UnrestrictedValue)
+				if err != nil {
+					fmt.Println(err)
+				}
+				err = s.UserStorage.CreateHistorySearch(SearchHistoryID, RespondHistoryID)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 		fmt.Println("service: запрос и результаты записаны в базу данных")

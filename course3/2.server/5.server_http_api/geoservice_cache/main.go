@@ -1,5 +1,7 @@
-//В этой задаче требуется добавить контроллер в геосервис, написанный на gohugo.
-//Контроллер должен быть реализован в соответствии с принципами чистой архитектуры.
+//Реализация кэширования истории поиска
+//Реализуй слой repository в геосервисе для метода /api/address/search.
+//Чтобы снизить издержки бизнеса по использованию сторонних сервисов, мы решили кэшировать ответы
+//от сервиса dadata.ru в базе данных.
 
 package main
 
@@ -11,6 +13,7 @@ import (
 	"go-kata/2.server/5.server_http_api/geoservice_cache/controller"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/responder"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/services"
+	"go-kata/2.server/5.server_http_api/geoservice_cache/storage"
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +31,8 @@ func main() {
 	port := os.Getenv("SERVER_PORT")
 
 	// Создание экземпляра сервиса
-	servicer := services.NewService()
+	storager := storage.NewUserStorage()
+	servicer := services.NewService(storager)
 
 	// Создание экземпляра контроллера
 	responder := responder.NewResponder()
@@ -41,13 +45,14 @@ func main() {
 	r.Get("/swagger/index.html", UserController.SwaggerUI)
 	r.Get("/public/*", func(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/public/", http.FileServer(http.Dir("/app/public"))).ServeHTTP(w, r)
-		//http.StripPrefix("/public/", http.FileServer(http.Dir("./2.server/5.server_http_api/layer_controller/public"))).ServeHTTP(w, r)
+		//http.StripPrefix("/public/", http.FileServer(http.Dir("/home/m/GolandProjects/GHcourse3/course3/2.server/5.server_http_api/geoservice_cache/public"))).ServeHTTP(w, r)
+
 	})
 
 	r.Group(func(r chi.Router) {
 		//r.Use(jwtauth.Verifier(services.TokenAuth))
 		//r.Use(jwtauth.Authenticator)
-		//r.Use(UserController.UnauthorizedToForbidden)
+		r.Use(UserController.UnauthorizedToForbidden)
 
 		r.Post("/api/address/search", UserController.SearchByQuery)
 		r.Post("/api/address/geocode", UserController.SearchByGeo)
@@ -84,14 +89,3 @@ func main() {
 	}
 	log.Println("Server stopped gracefully")
 }
-
-//Критерии приемки
-//Контроллер успешно добавлен в геосервис.
-//Контроллер использует интерфейс Responder.
-//Контроллер реализован в соответствии с принципами чистой архитектуры.
-//Геосервис успешно обрабатывает запросы на /api/address/search и возвращает ожидаемый результат.
-//Геосервис успешно обрабатывает запросы на /api/address/geocode и возвращает ожидаемый результат.
-//Роуты имеют соответствующую иерархию.
-//Присутствует документация swagger для всех эндпоинтов.
-//Проект для проверки ментором, просто запускается с помощью команды docker-compose up.
-//Покрытие тестами не требуется.

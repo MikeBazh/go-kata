@@ -7,13 +7,10 @@ import (
 )
 
 type UserRepository interface {
-	//Create(user string) error
 	CreateSearchHistory(RequestedAddress string) (SearchHistoryID int, err error)
 	CreateRespondHistory(SearchResponse []byte, value string) (RespondHistoryID int, err error)
 	CreateHistorySearch(search_id, address_id int) error
 	CheckHistory(query string) ([][]byte, error)
-
-	// Другие методы, необходимые для работы с БД
 }
 
 // UserStorage - хранилище пользователей
@@ -50,7 +47,6 @@ func (s *UserStorage) CreateSearchHistory(RequestedAddress string) (SearchHistor
 	// Вставляем данные в таблицу
 	query := "INSERT INTO search_history (addresses) VALUES ($1) RETURNING id"
 	err = db.QueryRow(query, RequestedAddress).Scan(&SearchHistoryID)
-	//err = db.QueryRow(CreateQueryInsert("search_history", "addresses"), RequestedAddress).Scan(&SearchHistoryID)
 	if err != nil {
 		return 0, err
 		fmt.Println(err)
@@ -76,7 +72,6 @@ func (s *UserStorage) CreateRespondHistory(SearchResponse []byte, value string) 
 	}
 	defer db.Close()
 	// Вставляем данные в таблицу
-	//err = db.QueryRow(CreateQueryInsert("address", "addresses"), SearchResponse).Scan(&RespondHistoryID)
 	err = db.QueryRow("INSERT INTO address (addresses, address_value) VALUES ($1, $2) RETURNING id", SearchResponse, value).Scan(&RespondHistoryID)
 	if err != nil {
 		return 0, err
@@ -125,8 +120,6 @@ func (s *UserStorage) CheckHistory(query string) ([][]byte, error) {
 	var searchIDs []int
 	var QueryFromHistory string
 	var QuerysFromHistory []string
-	// Выполняем запрос для поиска текущего запроса в истории запросов
-	//row := db.QueryRow("SELECT id FROM search_history WHERE addresses = $1", query)
 
 	// Выполняем запрос для поиска текущего запроса в истории запросов
 	row, err := db.Query(`
@@ -201,11 +194,6 @@ func (s *UserStorage) CheckHistory(query string) ([][]byte, error) {
 		return [][]byte{}, err
 	}
 }
-
-//func CreateQueryInsert(TableName, column string) string {
-//	query := "INSERT INTO " + TableName + " (" + column + ") VALUES ($1) RETURNING id"
-//	return query
-//}
 
 func CreateTable(TableName string, Columns map[string]string) error {
 	// Устанавливаем соединение с базой данных PostgreSQL

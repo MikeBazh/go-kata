@@ -1,20 +1,6 @@
 {
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "schemes": [
-    "http"
-  ],
   "swagger": "2.0",
-  "info": {
-    "description": "Документация по геосервису.",
-    "title": "геосервис.",
-    "version": "1.0.0"
-  },
-  "basePath": "/",
+  "info": {},
   "paths": {
     "/api/address/geocode": {
       "post": {
@@ -162,7 +148,7 @@
           "x-go-name": "Value"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_JWT/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
     },
     "AuthToken": {
       "type": "object",
@@ -176,7 +162,7 @@
           "x-go-name": "Token"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/docs"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/docs"
     },
     "Data": {
       "type": "object",
@@ -518,7 +504,7 @@
           "x-go-name": "UnparsedParts"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
     },
     "GeocodeRequest": {
       "type": "object",
@@ -532,7 +518,7 @@
           "x-go-name": "Lng"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/Handlers"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/controller"
     },
     "GeocodeResponse": {
       "type": "object",
@@ -545,7 +531,7 @@
           "x-go-name": "Addresses"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
     },
     "RegisterRequest": {
       "type": "object",
@@ -559,7 +545,7 @@
           "x-go-name": "Password"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/Handlers"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/controller"
     },
     "SearchRequest": {
       "type": "object",
@@ -569,7 +555,7 @@
           "x-go-name": "Query"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/Handlers"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/controller"
     },
     "SearchResponse": {
       "type": "object",
@@ -582,7 +568,7 @@
           "x-go-name": "Addresses"
         }
       },
-      "x-go-package": "go-kata/2.server/5.server_http_api/task3.2.5.1_GraceShutdown/Dadata"
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
     }
   },
   "responses": {
@@ -590,7 +576,7 @@
       "description": "Ошибка, неверный формат запроса."
     },
     "Forbidden": {
-      "description": "Токен авторизации отсутствует или не валиден."
+      "description": "Токен авторизации не валиден."
     },
     "GeocodeResponse": {
       "description": "Pезультат поиска по координатам.",
@@ -610,8 +596,7 @@
     "RegisterResponse": {
       "description": "успешная регистрация нового пользователя.",
       "schema": {
-        "type": "string",
-        "example": "Пользователь зарегистрирован"
+        "type": "string"
       }
     },
     "SearchResponse": {
@@ -622,16 +607,6 @@
     },
     "Unauthorized": {
       "description": "Пользователь не авторизирован."
-    }
-  },
-  "securityDefinitions": {
-    "basic": {
-      "type": "basic"
-    },
-    "bearerAuth": {
-      "type": "apiKey",
-      "name": "Authorization",
-      "in": "header"
     }
   }
 }

@@ -1,4 +1,3 @@
-//module layer_controller_geoservice_cache
 module go-kata/2.server/5.server_http_api/geoservice_cache
 
 go 1.19
