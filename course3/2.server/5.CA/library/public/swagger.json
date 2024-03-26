@@ -1,0 +1,342 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Документация по сервису библиотеки.",
+    "title": "библиотека.",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/authors": {
+      "get": {
+        "tags": [
+          "authors"
+        ],
+        "summary": "Вывод списка авторов.",
+        "operationId": "ListAuthors",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ListAuthors"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "authors"
+        ],
+        "summary": "Добавление автора.",
+        "operationId": "AddAuthorsResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "AuthorName",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/AddAuthorsResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/book/add": {
+      "post": {
+        "tags": [
+          "book"
+        ],
+        "summary": "Добавление книги.",
+        "operationId": "AddBookResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "title",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "authorID",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/AddBookResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/book/return": {
+      "post": {
+        "tags": [
+          "book"
+        ],
+        "summary": "Возврат книги пользователем.",
+        "operationId": "ReturnBookResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "userID",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "bookID",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/BookReturnResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/book/take": {
+      "post": {
+        "tags": [
+          "book"
+        ],
+        "summary": "Получение книги пользователем.",
+        "operationId": "BookTakeResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "userID",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "bookID",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/BookTakeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/books": {
+      "get": {
+        "tags": [
+          "book"
+        ],
+        "summary": "Вывод списка книг.",
+        "operationId": "ListBooks",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ListBooks"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Вывод списка пользователей.",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ListUsers"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Author": {
+      "type": "object",
+      "properties": {
+        "Books": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Book"
+          }
+        },
+        "ID": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Name": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/library/dto"
+    },
+    "Book": {
+      "type": "object",
+      "properties": {
+        "Author": {
+          "$ref": "#/definitions/Author"
+        },
+        "ID": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Title": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/library/dto/book"
+    },
+    "RentedBook": {
+      "type": "object",
+      "properties": {
+        "Author": {
+          "type": "string"
+        },
+        "ID": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "IsRented": {
+          "type": "boolean"
+        },
+        "Title": {
+          "type": "string"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/library/dto/user"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "RentedBooks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RentedBook"
+          }
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/library/dto/user"
+    }
+  },
+  "responses": {
+    "AddAuthorsResponse": {
+      "description": "Pезультат запроса добавления автора (\"ОК\" или ошибка).",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "AddBookResponse": {
+      "description": "Pезультат запроса на добавление книги (\"ОК\" или ошибка).",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "BadRequestResponse": {
+      "description": "Ошибка, неверный формат запроса."
+    },
+    "BookReturnResponse": {
+      "description": "Pезультат запроса возврата книги пользователем (\"ОК\" или ошибка).",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "BookTakeResponse": {
+      "description": "Pезультат запроса получения книги пользователем (\"ОК\" или ошибка).",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера."
+    },
+    "ListAuthors": {
+      "description": "Pезультат запроса списка авторов.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Author"
+        }
+      }
+    },
+    "ListBooks": {
+      "description": "Pезультат запроса списка книг.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Book"
+        }
+      }
+    },
+    "ListUsers": {
+      "description": "Pезультат запроса списка авторов.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    }
+  }
+}
