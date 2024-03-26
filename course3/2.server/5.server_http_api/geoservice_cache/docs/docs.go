@@ -17,15 +17,11 @@
 //
 // SecurityDefinitions:
 // basic:
-//
 //	type: basic
-//
 // bearerAuth:
-//
 //	type: apiKey
 //	in: header
 //	name: Authorization
-//
 // swagger:meta
 
 package docs

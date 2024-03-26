@@ -1,6 +1,20 @@
 {
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
   "swagger": "2.0",
-  "info": {},
+  "info": {
+    "description": "Документация по геосервису.",
+    "title": "геосервис.",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
   "paths": {
     "/api/address/geocode": {
       "post": {
@@ -607,6 +621,16 @@
     },
     "Unauthorized": {
       "description": "Пользователь не авторизирован."
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic"
+    },
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   }
 }
