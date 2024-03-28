@@ -13,7 +13,6 @@ type UserRepository interface {
 	CheckHistory(query string) ([][]byte, error)
 }
 
-// UserStorage - хранилище пользователей
 type UserStorage struct {
 }
 
@@ -150,7 +149,7 @@ func (s *UserStorage) CheckHistory(query string) ([][]byte, error) {
 	var addressList [][]byte
 
 	if len(searchIDs) > 0 {
-		fmt.Println("repository: найдено в кэше по запросу: '", QuerysFromHistory[0], "'")
+		fmt.Println("repository: найдено в БД по запросу: '", QuerysFromHistory[0], "'")
 		// Выполняем запрос для поиска ID адресов, связанных с найденными ID запросов в истории
 		rows, err := db.Query("SELECT address_id FROM history_search_address WHERE search_history_id = $1", searchID)
 		if err != nil {
@@ -190,7 +189,7 @@ func (s *UserStorage) CheckHistory(query string) ([][]byte, error) {
 		}
 		return addressList, err
 	} else {
-		err = fmt.Errorf("repository: не найдено в кэше")
+		err = fmt.Errorf("repository: не найдено в БД")
 		return [][]byte{}, err
 	}
 }

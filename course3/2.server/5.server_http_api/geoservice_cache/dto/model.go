@@ -1,85 +1,4 @@
-package Dadata
-
-import (
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/ekomobile/dadata/v2"
-	"github.com/ekomobile/dadata/v2/api/suggest"
-	"github.com/ekomobile/dadata/v2/client"
-	"io"
-	"net/http"
-)
-
-func AskByQuery(queryAddr string) (SearchResponse, error) {
-
-	creds := client.Credentials{
-		ApiKeyValue:    "f1487054fd3354afa7fff0a8aed0276d6b9b1545",
-		SecretKeyValue: "91662072e8c12d1185984451eece3124af4cb800",
-	}
-	api := dadata.NewSuggestApi(client.WithCredentialProvider(&creds))
-	params := suggest.RequestParams{
-		Query: queryAddr,
-	}
-	suggestions, err := api.Address(context.Background(), &params)
-	if err != nil {
-		return SearchResponse{}, err
-	}
-	newSearchResponse := SearchResponse{}
-	for _, s := range suggestions {
-		newData := Data{Source: s.Data.Source, Result: s.Data.Result, PostalCode: s.Data.PostalCode, Country: s.Data.Country, CountryIsoCode: s.Data.CountryIsoCode, FederalDistrict: s.Data.FederalDistrict, Region: s.Data.Region, City: s.Data.City, Street: s.Data.Street}
-		newSearchResponse.Addresses = append(newSearchResponse.Addresses, &Address{Value: s.Value, UnrestrictedValue: s.UnrestrictedValue, Data: newData})
-	}
-
-	var Response SearchResponse
-	Response.Addresses = newSearchResponse.Addresses
-	return Response, nil
-}
-
-func AskByGeo(lat, lon string) (s GeocodeResponse, err error) {
-	// Укажем URL и тело запроса
-	url := "http://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate/address"
-	body := map[string]string{"lat": lat, "lon": lon, "radius_meters": "100"}
-
-	// Кодируем тело запроса в JSON
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		fmt.Println("Ошибка AskDadata при кодировании JSON:", err)
-		return GeocodeResponse{}, err
-	}
-
-	NewClient := &http.Client{}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		fmt.Println("Ошибка AskDadata при создании запроса:", err)
-		return GeocodeResponse{}, err
-	}
-
-	// Устанавливаем заголовки запроса
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Token f1487054fd3354afa7fff0a8aed0276d6b9b1545")
-
-	resp, err := NewClient.Do(req)
-	if err != nil {
-		fmt.Println("Ошибка AskDadata при выполнении запроса:", err)
-		return GeocodeResponse{}, err
-	}
-	defer resp.Body.Close()
-
-	// Читаем тело ответа
-	respBody, err := io.ReadAll(resp.Body)
-	NewGeocodeResponse := GeocodeResponseSuggest{}
-	err = json.Unmarshal(respBody, &NewGeocodeResponse)
-	if err != nil {
-		fmt.Println("Ошибка AskDadata при чтении тела ответа:", err)
-		return GeocodeResponse{}, err
-	}
-	var Response GeocodeResponse
-	Response.Addresses = NewGeocodeResponse.Addresses
-	return Response, nil
-}
+package dto
 
 type GeocodeResponse struct {
 	Addresses []*Address `json:"addresses"`
@@ -189,8 +108,4 @@ type Data struct {
 	QualityCodeRaw         interface{} `json:"qc"`
 	UnparsedParts          string      `json:"unparsed_parts"`
 	Metro                  struct{}    `json:"metro"`
-}
-
-func (u *GeocodeResponse) MarshalBinary() ([]byte, error) {
-	return json.Marshal(u)
 }

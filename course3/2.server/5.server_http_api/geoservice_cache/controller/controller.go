@@ -19,14 +19,16 @@ type Responder interface {
 }
 
 type UserController struct {
-	responder Responder
-	servicer  services.Servicer
+	responder     Responder
+	servicer      services.Servicer
+	proxyservicer services.ServiceProxy
 }
 
-func NewUserController(responder Responder, servicer services.Servicer) *UserController {
+func NewUserController(responder Responder, servicer services.Servicer, proxyservicer services.ServiceProxy) *UserController {
 	return &UserController{
-		responder: responder,
-		servicer:  servicer,
+		responder:     responder,
+		servicer:      servicer,
+		proxyservicer: proxyservicer,
 	}
 }
 
@@ -78,7 +80,7 @@ func (c *UserController) SearchByQuery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Вызов метода сервиса для регистрации пользователя
-	respond, err := c.servicer.SearchByQuery(requestBody.Query)
+	respond, err := c.proxyservicer.SearchByQuery(requestBody.Query)
 	if err != nil {
 		// Обработка ошибок сервиса
 		c.responder.ErrorInternal(w, err)
@@ -97,7 +99,7 @@ func (c *UserController) SearchByGeo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Вызов метода сервиса для регистрации пользователя
-	respond, err := c.servicer.SearchByGeo(requestBody.Lat, requestBody.Lng)
+	respond, err := c.proxyservicer.SearchByGeo(requestBody.Lat, requestBody.Lng)
 	if err != nil {
 		// Обработка ошибок сервиса
 		c.responder.ErrorInternal(w, err)

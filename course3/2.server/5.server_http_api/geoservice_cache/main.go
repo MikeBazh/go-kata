@@ -9,8 +9,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/jwtauth"
+	"github.com/go-redis/redis"
 	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/controller"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/responder"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/services"
@@ -19,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
@@ -30,14 +32,22 @@ func main() {
 		log.Fatal("Error load .env file: ", err)
 	}
 	port := os.Getenv("SERVER_PORT")
+	redisDB, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     os.Getenv("REDIS_ADDR"),     // Адрес сервера Redis
+		Password: os.Getenv("REDIS_PASSWORD"), // Пароль, если установлен
+		DB:       redisDB,                     // Индекс базы данных
+	})
 
 	// Создание экземпляра сервиса
 	storager := storage.NewUserStorage()
 	servicer := services.NewService(storager)
+	proxyServicer := services.NewServiceProxy(*servicer, *client)
 
 	// Создание экземпляра контроллера
 	responder := responder.NewResponder()
-	UserController := controller.NewUserController(responder, servicer)
+	UserController := controller.NewUserController(responder, servicer, *proxyServicer)
 
 	r := chi.NewRouter()
 
@@ -51,7 +61,7 @@ func main() {
 	})
 
 	r.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(services.TokenAuth))
+		//r.Use(jwtauth.Verifier(services.TokenAuth))
 		//r.Use(jwtauth.Authenticator)
 		r.Use(UserController.UnauthorizedToForbidden)
 

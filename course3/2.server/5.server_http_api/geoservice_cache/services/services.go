@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
+	"github.com/go-redis/redis"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
 	"go-kata/2.server/5.server_http_api/geoservice_cache/storage"
 	"golang.org/x/crypto/bcrypt"
@@ -27,7 +28,22 @@ type Service struct {
 
 func NewService(UserStorage storage.UserRepository) *Service {
 	return &Service{
-		UserStorage: UserStorage}
+		UserStorage: UserStorage,
+		//UserCache:   UserCache,
+	}
+}
+
+type ServiceProxy struct {
+	Service Servicer
+	cache   redis.Client
+}
+
+// NewServiceProxy - конструктор хранилища пользователей
+func NewServiceProxy(Service Service, cache redis.Client) *ServiceProxy {
+	return &ServiceProxy{
+		&Service,
+		cache,
+	}
 }
 
 func (s *Service) RegisterUser(login, password string) error {
@@ -69,7 +85,7 @@ func (s *Service) SearchByGeo(Lat, Lng string) (Dadata.GeocodeResponse, error) {
 func (s *Service) SearchByQuery(Query string) (Dadata.SearchResponse, error) {
 	//Проверяем запрос в истории поиска
 	if addressList, err := s.UserStorage.CheckHistory(Query); err == nil {
-		fmt.Println("service: запрос найден в истории, ответ отправлен из кэша")
+		fmt.Println("service: запрос найден в БД, ответ отправлен из БД")
 		var responseFromCache Dadata.SearchResponse
 		var address Dadata.Address
 		for _, SingleAddress := range addressList {
@@ -88,7 +104,7 @@ func (s *Service) SearchByQuery(Query string) (Dadata.SearchResponse, error) {
 		if err != nil {
 			return Dadata.SearchResponse{}, err
 		}
-		fmt.Println("service: не найдено в истории, отправлен запрос во внешний сервис")
+		fmt.Println("service: не найдено в БД, отправлен запрос во внешний сервис")
 		// Записываем запрос и результаты запроса в базу данных
 		SearchHistoryID, err := s.UserStorage.CreateSearchHistory(Query)
 		if err != nil {
@@ -118,7 +134,7 @@ func (s *Service) SearchByQuery(Query string) (Dadata.SearchResponse, error) {
 				}
 			}
 		}
-		fmt.Println("service: запрос и результаты записаны в базу данных")
+		fmt.Println("service: запрос и результаты записаны в БД")
 		return newSearchResponse, err
 	}
 }
