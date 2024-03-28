@@ -11,7 +11,7 @@ import (
 
 type Responder interface {
 	OutputJSON(w http.ResponseWriter, responseData interface{})
-	//ErrorUnauthorized(w http.ResponseWriter, err error)
+
 	ErrorBadRequest(w http.ResponseWriter, err error)
 	ErrorForbidden(w http.ResponseWriter, err error)
 	ErrorInternal(w http.ResponseWriter, err error)
@@ -29,52 +29,7 @@ func NewUserController(responder Responder, servicer services.Servicer) *UserCon
 	}
 }
 
-//func (c *UserController) Register(w http.ResponseWriter, r *http.Request) {
-//	// Предварительная обработка запроса
-//	var requestBody RegisterRequest
-//	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-//		c.responder.ErrorBadRequest(w, err)
-//		return
-//	}
-//
-//	// Вызов метода сервиса для регистрации пользователя
-//	if err := c.servicer.RegisterUser(requestBody.Login, requestBody.Password); err != nil {
-//		// Обработка ошибок сервиса
-//		c.responder.ErrorInternal(w, err)
-//		return
-//	}
-//
-//	// Отправка успешного ответа клиенту
-//	c.responder.OutputJSON(w, "Пользователь зарегестрирован")
-//}
-//
-//func (c *UserController) Login(w http.ResponseWriter, r *http.Request) {
-//	// Предварительная обработка запроса
-//	var requestBody RegisterRequest
-//	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-//		c.responder.ErrorBadRequest(w, err)
-//		return
-//	}
-//
-//	// Вызов метода сервиса для регистрации пользователя
-//	respond, err := c.servicer.LoginUser(requestBody.Login, requestBody.Password)
-//	if err != nil {
-//		// Обработка ошибок сервиса
-//		c.responder.ErrorInternal(w, err)
-//		return
-//	}
-//
-//	// Отправка успешного ответа клиенту
-//	c.responder.OutputJSON(w, respond)
-//}
-
 func (c *UserController) GetAuthorsWithBooks(w http.ResponseWriter, r *http.Request) {
-	// Предварительная обработка запроса
-	//var requestBody SearchRequest
-	//if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-	//	c.responder.ErrorBadRequest(w, err)
-	//	return
-	//}
 
 	// Вызов метода сервиса для регистрации пользователя
 	respond, err := c.servicer.GetAuthorsWithBooks()
@@ -152,7 +107,6 @@ func (c *UserController) ReturnBook(w http.ResponseWriter, r *http.Request) {
 func (c *UserController) AddAuthor(w http.ResponseWriter, r *http.Request) {
 	// Извлекаем параметры из URL
 	authorName := r.URL.Query().Get("AuthorName")
-	//fmt.Println("name:", authorName)
 	// Вызов метода сервиса для регистрации пользователя
 	respond, err := c.servicer.AddAuthor(authorName)
 	if err != nil {
@@ -212,19 +166,6 @@ func (c *UserController) SwaggerUI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-//func (c *UserController) UnauthorizedToForbidden(next http.Handler) http.Handler {
-//	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		_, claims, err := jwtauth.FromContext(r.Context())
-//		if err != nil || claims == nil {
-//			c.responder.ErrorForbidden(w, err)
-//			return
-//		}
-//		next.ServeHTTP(w, r)
-//	})
-//}
-
-// Другие методы контроллера...
 
 const (
 	swaggerTemplate = `<!DOCTYPE html>

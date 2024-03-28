@@ -14,7 +14,6 @@ func CreateTables() (*sql.DB, error) {
 		fmt.Println("Ошибка при подключении к базе данных:", err)
 		return db, err
 	}
-	//defer db.Close()
 
 	// Проверяем существование таблицы Authors
 	var tableAuthorsExists bool
@@ -25,7 +24,7 @@ func CreateTables() (*sql.DB, error) {
 	// Если таблица не существует, создаем её
 	if !tableAuthorsExists {
 
-		// Создание таблицы "Authors"
+		// Создание таблицы Authors
 		_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Authors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
@@ -34,7 +33,7 @@ func CreateTables() (*sql.DB, error) {
 			fmt.Println("Ошибка при создании таблицы Authors:", err)
 			return db, err
 		}
-		// Заполнение таблицы "Authors" данными
+		// Заполнение таблицы Authors данными
 		for i := 0; i < 10; i++ {
 			name := gofakeit.Name()
 			_, err := db.Exec("INSERT INTO Authors (name) VALUES ($1)", name)
@@ -42,7 +41,7 @@ func CreateTables() (*sql.DB, error) {
 				fmt.Println("Ошибка при добавлении автора:", err)
 			}
 		}
-		fmt.Println("заполнена таблица Authors")
+		fmt.Println("заполнена таблица authors")
 	}
 
 	// Проверяем существование таблицы Users
@@ -53,7 +52,7 @@ func CreateTables() (*sql.DB, error) {
 	}
 	// Если таблица не существует, создаем её
 	if !tableUsersExists {
-		// Создание таблицы "Users"
+		// Создание таблицы Users
 		_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -63,7 +62,7 @@ func CreateTables() (*sql.DB, error) {
 			fmt.Println("Ошибка при создании таблицы Users:", err)
 			return db, err
 		}
-		// Заполнение таблицы "Users" данными
+		// Заполнение таблицы Users данными
 		for i := 0; i < 51; i++ {
 			name := gofakeit.FirstName()
 			_, err := db.Exec("INSERT INTO Users (name) VALUES ($1)", name)
@@ -71,7 +70,7 @@ func CreateTables() (*sql.DB, error) {
 				fmt.Println("Ошибка при добавлении пользователя:", err)
 			}
 		}
-		fmt.Println("заполнена таблица Users")
+		fmt.Println("заполнена таблица users")
 	}
 
 	// Проверяем существование таблицы Books
@@ -82,7 +81,7 @@ func CreateTables() (*sql.DB, error) {
 	}
 	// Если таблица не существует, создаем её
 	if !tableBooksExists {
-		// Создание таблицы "Books"
+		// Создание таблицы Books
 		_, err = db.Exec(`CREATE TABLE IF NOT EXISTS Books (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -93,10 +92,9 @@ func CreateTables() (*sql.DB, error) {
 			fmt.Println("Ошибка при создании таблицы Books:", err)
 			return db, err
 		}
-		// Заполнение таблицы "Books" данными
+		// Заполнение таблицы Books данными
 		rand.Seed(100)
 		for i := 0; i < 100; i++ {
-			//_ = fake.SetLang("en")
 			gofakeit.Seed(0)
 			title := gofakeit.Sentence(3)
 			authorID := rand.Intn(9) + 1 // Выбираем случайный ID автора
@@ -105,11 +103,9 @@ func CreateTables() (*sql.DB, error) {
 				fmt.Println("Ошибка при добавлении книги:", err)
 			}
 		}
-		fmt.Println("заполнена таблица Books")
+		fmt.Println("заполнена таблица books")
 	}
-	//fmt.Println("Таблицы успешно созданы!")
 	//fmt.Println("наличие таблиц при запуске: ", tableAuthorsExists, tableUsersExists, tableBooksExists)
-	//err = GetUserBook(db, 1, 5)
-	fmt.Println(err)
+	//fmt.Println(err)
 	return db, nil
 }

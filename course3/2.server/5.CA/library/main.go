@@ -30,7 +30,7 @@ func main() {
 	port := os.Getenv("SERVER_PORT")
 
 	// Создание экземпляра сервиса
-	storager := storage.NewUserStorage()
+	storager := storage.NewLibraryStorage()
 	servicer := services.NewService(storager)
 
 	// Создание экземпляра контроллера

@@ -24,10 +24,10 @@ type Servicer interface {
 }
 
 type Service struct {
-	UserStorage storage.UserRepository
+	UserStorage storage.LibraryRepository
 }
 
-func NewService(UserStorage storage.UserRepository) *Service {
+func NewService(UserStorage storage.LibraryRepository) *Service {
 	return &Service{
 		UserStorage: UserStorage}
 }
