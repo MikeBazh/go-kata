@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/jwtauth"
 	"github.com/go-redis/redis"
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv"
@@ -76,7 +75,7 @@ func main() {
 	})
 
 	r.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(services.TokenAuth))
+		//r.Use(jwtauth.Verifier(services.TokenAuth))
 		//r.Use(jwtauth.Authenticator)
 		r.Use(UserController.UnauthorizedToForbidden)
 

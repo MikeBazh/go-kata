@@ -107,7 +107,7 @@ func (s *UserStorage) CreateHistorySearch(search_id, address_id int) error {
 }
 
 func (s *UserStorage) CheckHistory(query string) ([][]byte, error) {
-	// Устанавливаем соединение с базой данных PostgreSQL
+	// Устанавливаем соединение с базой данных
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Println(err)
