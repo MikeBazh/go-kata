@@ -120,6 +120,15 @@ func (s *UserStorage) CheckHistory(query string) ([][]byte, error) {
 	var QueryFromHistory string
 	var QuerysFromHistory []string
 
+	columns := map[string]string{
+		"addresses": "VARCHAR",
+	}
+	err = CreateTable("search_history", columns)
+	if err != nil {
+		fmt.Println(err)
+		return [][]byte{}, err
+	}
+
 	// Выполняем запрос для поиска текущего запроса в истории запросов
 	row, err := db.Query(`
 	SELECT id, addresses
