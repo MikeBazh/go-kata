@@ -1,0 +1,11 @@
+FROM grafana/grafana:latest
+
+# Копируем JSON файлы с источниками данных и дашбордами в образ
+COPY datasources/ /etc/grafana/provisioning/datasources/
+COPY dashboards/ /etc/grafana/provisioning/dashboards/
+
+# Открываем порт 3000, на котором работает Grafana
+EXPOSE 3000
+
+# Команда для запуска Grafana при старте контейнера
+CMD ["grafana-server", "-config=/etc/grafana/grafana.ini", "-homepath=/usr/share/grafana"]

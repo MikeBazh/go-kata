@@ -1,0 +1,636 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Документация по геосервису.",
+    "title": "геосервис.",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/address/geocode": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "geocode"
+        ],
+        "summary": "Поиск по координатам.",
+        "operationId": "GeocodeRequest",
+        "parameters": [
+          {
+            "description": "запрос для поиска по координатам.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/GeocodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GeocodeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/address/search": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "search"
+        ],
+        "summary": "Поиск по адресу.",
+        "operationId": "SearchRequest",
+        "parameters": [
+          {
+            "description": "запрос для поиска по адресу.",
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SearchRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/SearchResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "tags": [
+          "login"
+        ],
+        "summary": "Аутентификация пользователя.",
+        "operationId": "LoginRequest",
+        "parameters": [
+          {
+            "description": "запрос для аутентификации пользователя.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/LoginResponse"
+          }
+        }
+      }
+    },
+    "/api/register": {
+      "post": {
+        "tags": [
+          "register"
+        ],
+        "summary": "Регистрация нового пользователя.",
+        "operationId": "RegisterRequest",
+        "parameters": [
+          {
+            "description": "запрос для регистрации пользователя.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/RegisterResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Address": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Data"
+        },
+        "unrestricted_value": {
+          "type": "string",
+          "x-go-name": "UnrestrictedValue"
+        },
+        "value": {
+          "type": "string",
+          "x-go-name": "Value"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
+    },
+    "AuthToken": {
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "description": "Токен для аутентификации пользователя.\nin: header\nname: Authorization",
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/docs"
+    },
+    "Data": {
+      "type": "object",
+      "properties": {
+        "area": {
+          "type": "string",
+          "x-go-name": "Area"
+        },
+        "area_fias_id": {
+          "type": "string",
+          "x-go-name": "AreaFiasID"
+        },
+        "area_kladr_id": {
+          "type": "string",
+          "x-go-name": "AreaKladrID"
+        },
+        "area_type": {
+          "type": "string",
+          "x-go-name": "AreaType"
+        },
+        "area_type_full": {
+          "type": "string",
+          "x-go-name": "AreaTypeFull"
+        },
+        "area_with_type": {
+          "type": "string",
+          "x-go-name": "AreaWithType"
+        },
+        "beltway_distance": {
+          "type": "string",
+          "x-go-name": "BeltwayDistance"
+        },
+        "beltway_hit": {
+          "type": "string",
+          "x-go-name": "BeltwayHit"
+        },
+        "block": {
+          "type": "string",
+          "x-go-name": "Block"
+        },
+        "block_type": {
+          "type": "string",
+          "x-go-name": "BlockType"
+        },
+        "block_type_full": {
+          "type": "string",
+          "x-go-name": "BlockTypeFull"
+        },
+        "capital_marker": {
+          "type": "string",
+          "x-go-name": "CapitalMarker"
+        },
+        "city": {
+          "type": "string",
+          "x-go-name": "City"
+        },
+        "city_area": {
+          "type": "string",
+          "x-go-name": "CityArea"
+        },
+        "city_district": {
+          "type": "string",
+          "x-go-name": "CityDistrict"
+        },
+        "city_district_fias_id": {
+          "type": "string",
+          "x-go-name": "CityDistrictFiasID"
+        },
+        "city_district_kladr_id": {
+          "type": "string",
+          "x-go-name": "CityDistrictKladrID"
+        },
+        "city_district_type": {
+          "type": "string",
+          "x-go-name": "CityDistrictType"
+        },
+        "city_district_type_full": {
+          "type": "string",
+          "x-go-name": "CityDistrictTypeFull"
+        },
+        "city_district_with_type": {
+          "type": "string",
+          "x-go-name": "CityDistrictWithType"
+        },
+        "city_fias_id": {
+          "type": "string",
+          "x-go-name": "CityFiasID"
+        },
+        "city_kladr_id": {
+          "type": "string",
+          "x-go-name": "CityKladrID"
+        },
+        "city_type": {
+          "type": "string",
+          "x-go-name": "CityType"
+        },
+        "city_type_full": {
+          "type": "string",
+          "x-go-name": "CityTypeFull"
+        },
+        "city_with_type": {
+          "type": "string",
+          "x-go-name": "CityWithType"
+        },
+        "country": {
+          "type": "string",
+          "x-go-name": "Country"
+        },
+        "country_iso_code": {
+          "type": "string",
+          "x-go-name": "CountryIsoCode"
+        },
+        "entrance": {
+          "type": "string",
+          "x-go-name": "Entrance"
+        },
+        "federal_district": {
+          "type": "string",
+          "x-go-name": "FederalDistrict"
+        },
+        "fias_actuality_state": {
+          "type": "string",
+          "x-go-name": "FiasActualityState"
+        },
+        "fias_code": {
+          "type": "string",
+          "x-go-name": "FiasCode"
+        },
+        "fias_id": {
+          "type": "string",
+          "x-go-name": "FiasID"
+        },
+        "fias_level": {
+          "type": "string",
+          "x-go-name": "FiasLevel"
+        },
+        "flat": {
+          "type": "string",
+          "x-go-name": "Flat"
+        },
+        "flat_area": {
+          "type": "string",
+          "x-go-name": "FlatArea"
+        },
+        "flat_cadnum": {
+          "type": "string",
+          "x-go-name": "FlatCadNum"
+        },
+        "flat_fias_id": {
+          "type": "string",
+          "x-go-name": "FlatFiasId"
+        },
+        "flat_price": {
+          "type": "string",
+          "x-go-name": "FlatPrice"
+        },
+        "flat_type": {
+          "type": "string",
+          "x-go-name": "FlatType"
+        },
+        "flat_type_full": {
+          "type": "string",
+          "x-go-name": "FlatTypeFull"
+        },
+        "floor": {
+          "type": "string",
+          "x-go-name": "Floor"
+        },
+        "geo_lat": {
+          "type": "string",
+          "x-go-name": "GeoLat"
+        },
+        "geo_lon": {
+          "type": "string",
+          "x-go-name": "GeoLon"
+        },
+        "house": {
+          "type": "string",
+          "x-go-name": "House"
+        },
+        "house_cadnum": {
+          "type": "string",
+          "x-go-name": "HouseCadNum"
+        },
+        "house_fias_id": {
+          "type": "string",
+          "x-go-name": "HouseFiasID"
+        },
+        "house_kladr_id": {
+          "type": "string",
+          "x-go-name": "HouseKladrID"
+        },
+        "house_type": {
+          "type": "string",
+          "x-go-name": "HouseType"
+        },
+        "house_type_full": {
+          "type": "string",
+          "x-go-name": "HouseTypeFull"
+        },
+        "kladr_id": {
+          "type": "string",
+          "x-go-name": "KladrID"
+        },
+        "metro": {
+          "type": "object",
+          "x-go-name": "Metro"
+        },
+        "okato": {
+          "type": "string",
+          "x-go-name": "Okato"
+        },
+        "oktmo": {
+          "type": "string",
+          "x-go-name": "Oktmo"
+        },
+        "postal_box": {
+          "type": "string",
+          "x-go-name": "PostalBox"
+        },
+        "postal_code": {
+          "type": "string",
+          "x-go-name": "PostalCode"
+        },
+        "qc": {
+          "x-go-name": "QualityCodeRaw"
+        },
+        "qc_complete": {
+          "x-go-name": "QualityCodeCompleteRaw"
+        },
+        "qc_geo": {
+          "x-go-name": "QualityCodeGeoRaw"
+        },
+        "qc_house": {
+          "x-go-name": "QualityCodeHouseRaw"
+        },
+        "region": {
+          "type": "string",
+          "x-go-name": "Region"
+        },
+        "region_fias_id": {
+          "type": "string",
+          "x-go-name": "RegionFiasID"
+        },
+        "region_iso_code": {
+          "type": "string",
+          "x-go-name": "RegionIsoCode"
+        },
+        "region_kladr_id": {
+          "type": "string",
+          "x-go-name": "RegionKladrID"
+        },
+        "region_type": {
+          "type": "string",
+          "x-go-name": "RegionType"
+        },
+        "region_type_full": {
+          "type": "string",
+          "x-go-name": "RegionTypeFull"
+        },
+        "region_with_type": {
+          "type": "string",
+          "x-go-name": "RegionWithType"
+        },
+        "result": {
+          "type": "string",
+          "x-go-name": "Result"
+        },
+        "settlement": {
+          "type": "string",
+          "x-go-name": "Settlement"
+        },
+        "settlement_fias_id": {
+          "type": "string",
+          "x-go-name": "SettlementFiasID"
+        },
+        "settlement_kladr_id": {
+          "type": "string",
+          "x-go-name": "SettlementKladrID"
+        },
+        "settlement_type": {
+          "type": "string",
+          "x-go-name": "SettlementType"
+        },
+        "settlement_type_full": {
+          "type": "string",
+          "x-go-name": "SettlementTypeFull"
+        },
+        "settlement_with_type": {
+          "type": "string",
+          "x-go-name": "SettlementWithType"
+        },
+        "source": {
+          "type": "string",
+          "x-go-name": "Source"
+        },
+        "square_meter_price": {
+          "type": "string",
+          "x-go-name": "SquareMeterPrice"
+        },
+        "street": {
+          "type": "string",
+          "x-go-name": "Street"
+        },
+        "street_fias_id": {
+          "type": "string",
+          "x-go-name": "StreetFiasID"
+        },
+        "street_kladr_id": {
+          "type": "string",
+          "x-go-name": "StreetKladrID"
+        },
+        "street_type": {
+          "type": "string",
+          "x-go-name": "StreetType"
+        },
+        "street_type_full": {
+          "type": "string",
+          "x-go-name": "StreetTypeFull"
+        },
+        "street_with_type": {
+          "type": "string",
+          "x-go-name": "StreetWithType"
+        },
+        "tax_office": {
+          "type": "string",
+          "x-go-name": "TaxOffice"
+        },
+        "tax_office_legal": {
+          "type": "string",
+          "x-go-name": "TaxOfficeLegal"
+        },
+        "timezone": {
+          "type": "string",
+          "x-go-name": "Timezone"
+        },
+        "unparsed_parts": {
+          "type": "string",
+          "x-go-name": "UnparsedParts"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
+    },
+    "GeocodeRequest": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "string",
+          "x-go-name": "Lat"
+        },
+        "lng": {
+          "type": "string",
+          "x-go-name": "Lng"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/controller"
+    },
+    "GeocodeResponse": {
+      "type": "object",
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          },
+          "x-go-name": "Addresses"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
+    },
+    "RegisterRequest": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "x-go-name": "Login"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/controller"
+    },
+    "SearchRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "x-go-name": "Query"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/controller"
+    },
+    "SearchResponse": {
+      "type": "object",
+      "properties": {
+        "addresses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Address"
+          },
+          "x-go-name": "Addresses"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.server_http_api/geoservice_cache/Dadata"
+    }
+  },
+  "responses": {
+    "BadRequestResponse": {
+      "description": "Ошибка, неверный формат запроса."
+    },
+    "Forbidden": {
+      "description": "Токен авторизации не валиден."
+    },
+    "GeocodeResponse": {
+      "description": "Pезультат поиска по координатам.",
+      "schema": {
+        "$ref": "#/definitions/GeocodeResponse"
+      }
+    },
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера: сервис https://dadata.ru не доступен."
+    },
+    "LoginResponse": {
+      "description": "получен токен авторизации (в формате: Bearer + токен) или ошибка входа.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "RegisterResponse": {
+      "description": "успешная регистрация нового пользователя.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "SearchResponse": {
+      "description": "Pезультат поиска по адресу.",
+      "schema": {
+        "$ref": "#/definitions/SearchResponse"
+      }
+    },
+    "Unauthorized": {
+      "description": "Пользователь не авторизирован."
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic"
+    },
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

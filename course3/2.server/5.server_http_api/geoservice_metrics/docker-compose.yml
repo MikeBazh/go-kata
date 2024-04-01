@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  server:
+    build: .
+    restart: always
+    volumes:
+      - "./public:/app/public"
+    ports:
+      - "8080:8080"
+    command: /app/main
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis
+    container_name: my-redis-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: mikebazh/my-custom-grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./dashboards:/etc/grafana/provisioning/dashboards
+      - ./datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+
+volumes:
+    redis_data:
