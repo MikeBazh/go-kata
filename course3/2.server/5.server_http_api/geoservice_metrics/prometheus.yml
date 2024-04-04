@@ -45,4 +45,4 @@ scrape_configs:
 
   - job_name: 'my_web_app'
     static_configs:
-      - targets: ['geoservice_metrics_server_1:8080']
+      - targets: ['geoservice_metrics-server-1:8080']

@@ -4,7 +4,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://geoservice_metrics_prometheus_1:9090
+    url: http://geoservice_metrics-prometheus-1:9090
     isDefault: true
     editable: false
     uid: fdhc08j349e68e
