@@ -23,7 +23,6 @@ func CreateTableUsersIfNotExists() (*sql.DB, error) {
 		fmt.Println("Ошибка при подключении к базе данных:", err)
 		return db, err
 	}
-	fmt.Println("here")
 	// Проверяем существование таблицы Authors
 	var tableUsersExists bool
 	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", "users").Scan(&tableUsersExists)
@@ -61,7 +60,6 @@ func CreateTablePetsIfNotExists() (*sql.DB, error) {
 		fmt.Println("Ошибка при подключении к базе данных:", err)
 		return db, err
 	}
-	fmt.Println("here")
 	// Проверяем существование таблицы
 	var tableExists bool
 	err = db.QueryRow("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", "pets").Scan(&tableExists)
@@ -73,7 +71,7 @@ func CreateTablePetsIfNotExists() (*sql.DB, error) {
 		query := `
         CREATE TABLE IF NOT EXISTS pets (
             id SERIAL PRIMARY KEY,
-            name VARCHAR(50) UNIQUE NOT NULL,
+            name VARCHAR(50) NOT NULL,
           status VARCHAR(50) NOT NULL,
             tags JSONB NOT NULL,
             category JSONB NOT NULL                     

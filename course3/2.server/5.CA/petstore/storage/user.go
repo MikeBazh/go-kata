@@ -23,6 +23,7 @@ type LibraryRepository interface {
 	FindPetByStatus(status string) (pets []PetModel.Pet, err error)
 	AddPet(pet PetModel.Pet) error
 	UpdatePet(pet PetModel.Pet) error
+	UpdatePetWithData(pet PetModel.Pet) error
 	FindPetById(int) (pet PetModel.Pet, err error)
 	DeletePet(id int) error
 	//
@@ -127,32 +128,6 @@ func (ls *LibraryStorage) LoginUser(name, password string) error {
 	}
 	return nil
 }
-
-//func loginHandler(w http.ResponseWriter, r *http.Request) {
-//	// Распарсите учетные данные пользователя из тела запроса
-//	var credentials UserCredentials
-//	err := json.NewDecoder(r.Body).Decode(&credentials)
-//	if err != nil {
-//		http.Error(w, "Неверный формат учетных данных", http.StatusBadRequest)
-//		return
-//	}
-//
-//	// Проверьте учетные данные пользователя (здесь просто пример)
-//	if credentials.Username != "user" || credentials.Password != "password" {
-//		http.Error(w, "Неверные учетные данные", http.StatusUnauthorized)
-//		return
-//	}
-//
-//	// Ваша логика для генерации и выдачи токена аутентификации
-//	// Здесь мы просто генерируем случайный токен для демонстрации
-//	authToken := AuthToken{Token: "example_token"}
-//
-//	// Отправьте токен в ответе
-//	w.Header().Set("Content-Type", "application/json")
-//	w.Header().Set("X-Expires-After", "2024-04-05T12:00:00Z") // Пример даты и времени в UTC
-//	w.Header().Set("X-Rate-Limit", "1000")                    // Пример количества вызовов в час
-//	json.NewEncoder(w).Encode(authToken)
-//}
 
 func (ls *LibraryStorage) LogoutUser(name string) error {
 	db, err := CreateTableUsersIfNotExists()

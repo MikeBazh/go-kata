@@ -2,17 +2,6 @@ package storage
 
 import "time"
 
-//type User struct {
-//	Id         int    `json:"id"`
-//	Username   string `json:"username"`
-//	FirstName  string `json:"firstName"`
-//	LastName   string `json:"lastName"`
-//	Email      string `json:"email"`
-//	Password   string `json:"password"`
-//	Phone      string `json:"phone"`
-//	UserStatus int    `json:"userStatus"`
-//}
-
 type Order struct {
 	Complete bool      `json:"complete"`
 	Id       int       `json:"id"`

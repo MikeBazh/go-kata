@@ -49,16 +49,6 @@ func main() {
 		r.Use(jwtauth.Verifier(services.TokenAuth))
 		//r.Use(jwtauth.Authenticator)
 		//r.Use(UserController.UnauthorizedToForbidden)
-		r.Delete("/api/user/{username}", UserController.DeleteUserByName)
-
-		r.Get("/api/pet/findByStatus", UserController.FindPetByStatus)
-		r.Post("/api/pet", UserController.AddPet)
-		r.Put("/api/pet", UserController.UpdatePet)
-		r.Delete("/api/pet/{petId}", UserController.DeletePet)
-		r.Post("/api/pet/{petId}", UserController.UpdatePetWithData)
-		r.Get("/api/pet/{petId}", UserController.FindPetById)
-
-		r.Get("/api/store/inventory", UserController.Inventory)
 	})
 
 	r.Post("/api/user", UserController.CreateUser)
@@ -68,10 +58,19 @@ func main() {
 	r.Get("/api/user/logout", UserController.LogoutUser)
 	r.Get("/api/user/{username}", UserController.GetUserByName)
 	r.Put("/api/user/{username}", UserController.UpdateUserByName)
+	r.Delete("/api/user/{username}", UserController.DeleteUserByName)
 
 	r.Post("/api/store/order", UserController.AddOrder)
 	r.Get("/api/store/order/{orderId}", UserController.FindOrderById)
 	r.Delete("/api/store/order/{orderId}", UserController.DeleteOrder)
+	r.Get("/api/store/inventory", UserController.Inventory)
+
+	r.Get("/api/pet/findByStatus", UserController.FindPetByStatus)
+	r.Post("/api/pet", UserController.AddPet)
+	r.Put("/api/pet", UserController.UpdatePet)
+	r.Delete("/api/pet/{petId}", UserController.DeletePet)
+	r.Post("/api/pet/{petId}", UserController.UpdatePetWithData)
+	r.Get("/api/pet/{petId}", UserController.FindPetById)
 
 	//port := ":8080"
 	server := &http.Server{

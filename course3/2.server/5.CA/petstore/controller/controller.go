@@ -228,7 +228,7 @@ func (c *UserController) FindPetByStatus(w http.ResponseWriter, r *http.Request)
 	pets, err := c.servicer.FindPetByStatus(status)
 	if err != nil {
 		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
+		c.responder.ErrorBadRequest(w, err)
 		return
 	}
 	// Отправка успешного ответа клиенту
@@ -245,7 +245,7 @@ func (c *UserController) AddPet(w http.ResponseWriter, r *http.Request) {
 	err := c.servicer.AddPet(requestBody)
 	if err != nil {
 		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
+		c.responder.ErrorBadRequest(w, fmt.Errorf("неверно введены данные или Name уже существует"))
 		return
 	}
 	// Отправка успешного ответа клиенту
@@ -262,7 +262,7 @@ func (c *UserController) UpdatePet(w http.ResponseWriter, r *http.Request) {
 	err := c.servicer.UpdatePet(requestBody)
 	if err != nil {
 		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
+		c.responder.ErrorBadRequest(w, err)
 		return
 	}
 	// Отправка успешного ответа клиенту
@@ -287,7 +287,7 @@ func (c *UserController) UpdatePetWithData(w http.ResponseWriter, r *http.Reques
 	err = c.servicer.UpdatePetWithData(id, name, status)
 	if err != nil {
 		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
+		c.responder.ErrorBadRequest(w, err)
 		return
 	}
 	// Отправка успешного ответа клиенту
@@ -308,7 +308,7 @@ func (c *UserController) DeletePet(w http.ResponseWriter, r *http.Request) {
 	err = c.servicer.DeletePet(id)
 	if err != nil {
 		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
+		c.responder.ErrorBadRequest(w, err)
 		return
 	}
 	// Отправка успешного ответа клиенту
@@ -324,7 +324,7 @@ func (c *UserController) FindPetById(w http.ResponseWriter, r *http.Request) {
 	pets, err := c.servicer.FindPetById(id)
 	if err != nil {
 		// Обработка ошибок сервиса
-		c.responder.ErrorInternal(w, err)
+		c.responder.ErrorBadRequest(w, err)
 		return
 	}
 	// Отправка успешного ответа клиенту

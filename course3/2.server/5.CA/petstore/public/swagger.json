@@ -9,7 +9,7 @@
   "tags": [
     {
       "name": "pet",
-      "description": "Everything about your Pets",
+      "description": "Everything about your Pets"
     },
     {
       "name": "store",
@@ -27,62 +27,6 @@
     "http"
   ],
   "paths": {
-    "/pet/{petId}/uploadImage": {
-      "post": {
-        "tags": [
-          "pet"
-        ],
-        "summary": "uploads an image",
-        "description": "",
-        "operationId": "uploadFile",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "petId",
-            "in": "path",
-            "description": "ID of pet to update",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "additionalMetadata",
-            "in": "formData",
-            "description": "Additional data to pass to server",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "file",
-            "in": "formData",
-            "description": "file to upload",
-            "required": false,
-            "type": "file"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
     "/pet": {
       "post": {
         "tags": [
@@ -111,18 +55,16 @@
           }
         ],
         "responses": {
-          "405": {
-            "description": "Invalid input"
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "неверно введены данные или Name уже существует"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
@@ -143,7 +85,7 @@
           {
             "in": "body",
             "name": "body",
-            "description": "Pet object that needs to be added to the store",
+            "description": "Pet object that needs to be updated in the store",
             "required": true,
             "schema": {
               "$ref": "#/definitions/Pet"
@@ -151,24 +93,16 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
           "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Pet not found"
-          },
-          "405": {
-            "description": "Validation exception"
+            "description": "Ошибка ввода данных, имя уже существует или Pet с таким ID не найден "
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       }
     },
     "/pet/findByStatus": {
@@ -211,69 +145,8 @@
                 "$ref": "#/definitions/Pet"
               }
             }
-          },
-          "400": {
-            "description": "Invalid status value"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
-    "/pet/findByTags": {
-      "get": {
-        "tags": [
-          "pet"
-        ],
-        "summary": "Finds Pets by tags",
-        "description": "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.",
-        "operationId": "findPetsByTags",
-        "produces": [
-          "application/json",
-          "application/xml"
-        ],
-        "parameters": [
-          {
-            "name": "tags",
-            "in": "query",
-            "description": "Tags to filter by",
-            "required": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Pet"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid tag value"
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ],
-        "deprecated": true
+        }
       }
     },
     "/pet/{petId}": {
@@ -306,17 +179,9 @@
             }
           },
           "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Pet not found"
+            "description": "Не найдено или неверные данные"
           }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
+        }
       },
       "post": {
         "tags": [
@@ -357,18 +222,16 @@
           }
         ],
         "responses": {
-          "405": {
-            "description": "Invalid input"
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Ошибка входных данных или не найдено"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -398,21 +261,16 @@
           }
         ],
         "responses": {
-          "400": {
-            "description": "Invalid ID supplied"
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
           },
-          "404": {
-            "description": "Pet not found"
+          "400": {
+            "description": "не найдено или неверный ID"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       }
     },
     "/store/inventory": {
@@ -438,12 +296,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
+        }
       }
     },
     "/store/order": {
@@ -904,8 +757,7 @@
           "$ref": "#/definitions/Category"
         },
         "name": {
-          "type": "string",
-          "example": "doggie"
+          "type": "string"
         },
         "photoUrls": {
           "type": "array",
