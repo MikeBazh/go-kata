@@ -1,10 +1,11 @@
 package storage
 
-//
-//import (
-//	"fmt"
-//	//BookModel "go-kata/2.server/5.CA/library/dto/book"
-//)
+import (
+	"encoding/json"
+	"fmt"
+	PetModel "go-kata/2.server/5.CA/petstore/dto/pet"
+)
+
 //
 //// GetUserBook позволяет пользователю получить книгу по ее ID
 //func (s *LibraryStorage) GetUserBook(userID, bookID int) (string, error) {
@@ -95,31 +96,145 @@ package storage
 //
 //	return nil
 //}
-//
-//// AddBook добавляет новую книгу с указанным ID автора
-//func (s *LibraryStorage) AddBook(title string, authorID int) (string, error) {
-//	db, err := CreateTables()
-//	if err != nil {
-//		return "", err
-//	}
-//	// Проверяем существование автора
-//	exists, err := AuthorExists(db, authorID)
-//	if err != nil {
-//		return "", err
-//	}
-//	if !exists {
-//		return fmt.Sprintf("Ошибка: автора с ID %d не существует", authorID), nil
-//	}
-//
-//	// Выполняем запрос к базе данных для добавления новой книги
-//	_, err = db.Exec("INSERT INTO Books (title, author_id) VALUES ($1, $2)", title, authorID)
-//	if err != nil {
-//		return "", fmt.Errorf("ошибка при добавлении книги: %v", err)
-//	}
-//
-//	return "Ок", nil
+
+func (s *LibraryStorage) AddPet(pet PetModel.Pet) error {
+	db, err := CreateTables()
+	if err != nil {
+		return err
+	}
+	// Выполняем запрос к базе данных для добавления
+	//var tags []byte
+	tags, err := json.Marshal(pet.Tags)
+	category, err := json.Marshal(pet.Category)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("INSERT INTO pets (name, status, tags, category) VALUES ($1, $2, $3, $4)", pet.Name, pet.Status, tags, category)
+	if err != nil {
+		return fmt.Errorf("ошибка при добавлении pet: %v", err)
+	}
+	return nil
+}
+
+func (s *LibraryStorage) UpdatePet(pet PetModel.Pet) error {
+	db, err := CreateTables()
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+	//tags, err := json.Marshal(pet.Tags)
+	//category, err := json.Marshal(pet.Category)
+	// Выполняем запрос к базе данных для обновления
+	_, err = db.Exec("UPDATE pets SET name=$1, status=$2 WHERE id=$3", pet.Name, pet.Status, pet.Id)
+	//fmt.Println(id)
+	if err != nil {
+		return fmt.Errorf("ошибка при обновлении pet: %v", err)
+	}
+	return nil
+}
+
+func (s *LibraryStorage) FindPetById(id int) (pet PetModel.Pet, err error) {
+	db, err := CreateTables()
+	if err != nil {
+		return PetModel.Pet{}, err
+	}
+	// Выполняем запрос к базе данных для обновления
+	row, err := db.Query("SELECT * FROM pets WHERE id=$1", id)
+	var tags Tags
+	var category Category
+	var tagsJson []byte
+	var categoryJson []byte
+	for row.Next() {
+		err = row.Scan(&pet.Id, &pet.Name, &pet.Status, &tagsJson, &categoryJson)
+		//fmt.Println("1", err)
+		err = json.Unmarshal(tagsJson, &tags)
+		//fmt.Println("2", err)
+		err = json.Unmarshal(categoryJson, &category)
+		//fmt.Println("3", err)
+		if err != nil {
+			return PetModel.Pet{}, fmt.Errorf("ошибка при сканировании строк запроса: %v", err)
+		}
+		pet.Tags = tags
+		pet.Category = category
+		fmt.Println(pet)
+	}
+	return pet, nil
+}
+
+func (s *LibraryStorage) DeletePet(id int) error {
+	db, err := CreateTables()
+	if err != nil {
+		return err
+	}
+	// Выполняем запрос к базе данных для обновления
+	var ID int
+	query := "DELETE FROM pets WHERE id = $1 RETURNING id"
+	row := db.QueryRow(query, id)
+	err = row.Scan(&ID)
+	if err != nil {
+		return err
+	}
+	if ID == 0 {
+		return fmt.Errorf("not found")
+	}
+	fmt.Println("pet deleted")
+	return nil
+}
+
+func (s *LibraryStorage) FindPetByStatus(status string) (pets []PetModel.Pet, err error) {
+	db, err := CreateTables()
+	if err != nil {
+		return []PetModel.Pet{}, err
+	}
+	var pet PetModel.Pet
+	// Выполняем запрос к базе данных для обновления
+	//db.Query("SELECT * FROM pets WHERE status=$1", pet.Name)
+	rows, err := db.Query("SELECT * FROM pets WHERE status=$1", status)
+	if err != nil {
+		return []PetModel.Pet{}, fmt.Errorf("ошибка при запросе pet: %v", err)
+	}
+	for rows.Next() {
+		var tags Tags
+		var category Category
+		var tagsJson []byte
+		var categoryJson []byte
+		err := rows.Scan(&pet.Id, &pet.Name, &pet.Status, &tagsJson, &categoryJson)
+		//fmt.Println("1", err)
+		err = json.Unmarshal(tagsJson, &tags)
+		//fmt.Println("2", err)
+		err = json.Unmarshal(categoryJson, &category)
+		//fmt.Println("3", err)
+		if err != nil {
+			return []PetModel.Pet{}, fmt.Errorf("ошибка при сканировании строк запроса: %v", err)
+		}
+		pet.Tags = tags
+		pet.Category = category
+		fmt.Println(pet)
+		pets = append(pets, pet)
+	}
+	return pets, nil
+}
+
+type Tags []struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type Category struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+//query := "UPDATE users SET firstname = $1, lastname=$2, email = $3, phone = $4, userStatus=$5, password=$6  WHERE username = $7 RETURNING id"
+//var id int
+//err = db.QueryRow(query, newUser.FirstName, newUser.LastName, newUser.Email, newUser.Phone, newUser.UserStatus, newUser.Password, name).Scan(&id)
+//if err != nil {
+//return UserModel.User{}, err
 //}
-//
+//fmt.Println("user", id, "updated")
+
 //// GetBooksWithAuthors возвращает список всех книг с информацией об авторах.
 //func (s *LibraryStorage) GetBooksWithAuthors() ([]BookModel.Book, error) {
 //	db, err := CreateTables()
@@ -127,16 +242,16 @@ package storage
 //		return []BookModel.Book{}, err
 //	}
 //	query := `
-//    SELECT
-//      b.id AS book_id,
-//      b.title AS book_title,
-//      a.id AS author_id,
-//      a.name AS author_name
-//    FROM
-//      books b
-//    LEFT JOIN
-//      authors a ON b.author_id = a.id
-//  `
+//   SELECT
+//     b.id AS book_id,
+//     b.title AS book_title,
+//     a.id AS author_id,
+//     a.name AS author_name
+//   FROM
+//     books b
+//   LEFT JOIN
+//     authors a ON b.author_id = a.id
+// `
 //	rows, err := db.Query(query)
 //	if err != nil {
 //		return nil, fmt.Errorf("ошибка при выполнении запроса: %v", err)

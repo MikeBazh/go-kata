@@ -3,6 +3,7 @@ module go-kata/2.server/5.CA/petstore
 go 1.19
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/jwtauth v1.2.0
 	github.com/joho/godotenv v1.5.1

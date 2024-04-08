@@ -3,6 +3,9 @@ package storage
 import (
 	"fmt"
 	_ "github.com/lib/pq"
+	orderModel "go-kata/2.server/5.CA/petstore/dto/order"
+	PetModel "go-kata/2.server/5.CA/petstore/dto/pet"
+
 	//UserModel "go-kata/2.server/5.CA/library/dto/user"
 	UserModel "go-kata/2.server/5.CA/petstore/dto/user"
 )
@@ -16,14 +19,25 @@ type LibraryRepository interface {
 	DeleteUserByName(name string) (UserModel.User, error)
 	LoginUser(name, password string) error
 	LogoutUser(name string) error
+	//
+	FindPetByStatus(status string) (pets []PetModel.Pet, err error)
+	AddPet(pet PetModel.Pet) error
+	UpdatePet(pet PetModel.Pet) error
+	FindPetById(int) (pet PetModel.Pet, err error)
+	DeletePet(id int) error
+	//
+	Inventory() (props orderModel.Props, err error)
+	AddOrder(order orderModel.Order) error
+	FindOrderById(id int) (order orderModel.Order, err error)
+	DeleteOrder(id int) error
 }
 
 type LibraryStorage struct {
 }
 
 const (
-	//connStr = "host=db user=postgres password=123 dbname=postgres sslmode=disable"
-	connStr = "user=postgres password=123 dbname=postgres sslmode=disable"
+	connStr = "host=db user=postgres password=123 dbname=postgres sslmode=disable"
+	//connStr = "user=postgres password=123 dbname=postgres sslmode=disable"
 )
 
 // NewLibraryStorage - конструктор хранилища пользователей
@@ -98,16 +112,47 @@ func (ls *LibraryStorage) LoginUser(name, password string) error {
 	var ID string
 	if UserPassword == password {
 		// Implement login logic here
-		query := "UPDATE users SET userStatus = 'LoggedIn' WHERE username = $1 RETURNING id"
+		query := "UPDATE users SET userStatus = 1 WHERE username = $1 RETURNING id"
 		row := db.QueryRow(query, name)
 		err = row.Scan(&ID)
 		if err != nil {
 			return err
 		}
 		fmt.Println("user ", ID, "logged in")
+	} else {
+		fmt.Println("user не найден или пароль не совпадает")
+		{
+			return fmt.Errorf("user не найден или пароль не совпадает")
+		}
 	}
 	return nil
 }
+
+//func loginHandler(w http.ResponseWriter, r *http.Request) {
+//	// Распарсите учетные данные пользователя из тела запроса
+//	var credentials UserCredentials
+//	err := json.NewDecoder(r.Body).Decode(&credentials)
+//	if err != nil {
+//		http.Error(w, "Неверный формат учетных данных", http.StatusBadRequest)
+//		return
+//	}
+//
+//	// Проверьте учетные данные пользователя (здесь просто пример)
+//	if credentials.Username != "user" || credentials.Password != "password" {
+//		http.Error(w, "Неверные учетные данные", http.StatusUnauthorized)
+//		return
+//	}
+//
+//	// Ваша логика для генерации и выдачи токена аутентификации
+//	// Здесь мы просто генерируем случайный токен для демонстрации
+//	authToken := AuthToken{Token: "example_token"}
+//
+//	// Отправьте токен в ответе
+//	w.Header().Set("Content-Type", "application/json")
+//	w.Header().Set("X-Expires-After", "2024-04-05T12:00:00Z") // Пример даты и времени в UTC
+//	w.Header().Set("X-Rate-Limit", "1000")                    // Пример количества вызовов в час
+//	json.NewEncoder(w).Encode(authToken)
+//}
 
 func (ls *LibraryStorage) LogoutUser(name string) error {
 	db, err := CreateTableUsersIfNotExists()
@@ -116,9 +161,9 @@ func (ls *LibraryStorage) LogoutUser(name string) error {
 		return err
 	}
 	var ID string
-	query := "UPDATE users SET userStatus = null WHERE username = $1 RETURNING id"
+	query := "UPDATE users SET userStatus = 0 WHERE username = $1 RETURNING id"
 	row := db.QueryRow(query, name)
-	err = row.Scan(ID)
+	err = row.Scan(&ID)
 	if err != nil {
 		return err
 	}
@@ -174,72 +219,3 @@ func (ls *LibraryStorage) CreateUser(user UserModel.User) error {
 	}
 	return nil
 }
-
-//// GetUsersWithRentedBooks возвращает список пользователей с их арендованными книгами
-//func (s *LibraryStorage) GetUsersWithRentedBooks() ([]UserModel.User, error) {
-//	db, err := CreateTables()
-//	if err != nil {
-//		return []UserModel.User{}, err
-//	}
-//	query := `
-//        SELECT
-//            u.id AS user_id,
-//            u.name AS user_name,
-//            b.id AS book_id,
-//            b.title AS book_title,
-//            a.name AS author_name
-//        FROM
-//            users u
-//        LEFT JOIN
-//            books b ON b.id = ANY(u.rented_books)
-//        LEFT JOIN
-//            authors a ON b.author_id = a.id
-//    `
-//
-//	rows, err := db.Query(query)
-//	if err != nil {
-//		return nil, fmt.Errorf("ошибка при выполнении запроса: %v", err)
-//	}
-//	defer rows.Close()
-//
-//	usersMap := make(map[int]*UserModel.User)
-//	for rows.Next() {
-//		var userID int
-//		var userName string
-//		var bookID sql.NullInt64
-//		var bookTitle sql.NullString
-//		var authorName sql.NullString
-//
-//		err := rows.Scan(&userID, &userName, &bookID, &bookTitle, &authorName)
-//		if err != nil {
-//			return nil, fmt.Errorf("ошибка при сканировании строк запроса: %v", err)
-//		}
-//
-//		user, ok := usersMap[userID]
-//		if !ok {
-//			user = &UserModel.User{
-//				ID:          userID,
-//				Name:        userName,
-//				RentedBooks: []UserModel.RentedBook{},
-//			}
-//			usersMap[userID] = user
-//		}
-//
-//		if bookID.Valid && bookTitle.Valid && authorName.Valid {
-//			book := UserModel.RentedBook{
-//				ID:       int(bookID.Int64),
-//				Title:    bookTitle.String,
-//				Author:   authorName.String,
-//				IsRented: true,
-//			}
-//			user.RentedBooks = append(user.RentedBooks, book)
-//		}
-//	}
-//
-//	users := make([]UserModel.User, 0, len(usersMap))
-//	for _, user := range usersMap {
-//		users = append(users, *user)
-//	}
-//
-//	return users, nil
-//}
