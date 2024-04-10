@@ -38,6 +38,7 @@ type OrderService struct {
 
 func (o *OrderService) GetByRadius(ctx context.Context, lng, lat, radius float64, unit string) ([]models.Order, error) {
 	order, err := o.storage.GetByRadius(ctx, lng, lat, radius, unit)
+	//log.Println("OrderService: ", order, err)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +71,11 @@ func (o *OrderService) RemoveOldOrders(ctx context.Context) error {
 
 func (o *OrderService) GenerateOrder(ctx context.Context) error {
 	// Генерация заказа в случайной точке из разрешенной зоны
-	randomPoint := o.allowedZone.RandomPoint()
+	//randomPoint := o.allowedZone.RandomPoint()
+	randomPoint := geo.GetRandomAllowedLocation(o.allowedZone, o.disabledZones)
+	//log.Println("OrderService: GenerateOrder: randomPoint", randomPoint)
 	orderID, err := o.storage.GenerateUniqueID(ctx)
+	//log.Println("OrderService: GenerateOrder: orderID, err", orderID, err)
 	if err != nil {
 		return err
 	}
@@ -85,6 +89,7 @@ func (o *OrderService) GenerateOrder(ctx context.Context) error {
 		IsDelivered:   false,
 		CreatedAt:     time.Now(),
 	}
+	//log.Println("OrderService: GenerateOrder: ", order)
 	// Сохранение заказа
 	err = o.storage.Save(ctx, order, orderMaxAge)
 	if err != nil {

@@ -63,10 +63,10 @@ func (a *App) Run() error {
 	// инициализация хранилища курьеров
 	courierStorage := cstorage.NewCourierStorage(rclient)
 	// инициализация сервиса курьеров
-	courierSevice := cservice.NewCourierService(courierStorage, allowedZone, disAllowedZones)
+	courierService := cservice.NewCourierService(courierStorage, allowedZone, disAllowedZones)
 
 	// инициализация фасада сервиса курьеров
-	courierFacade := cfservice.NewCourierFacade(courierSevice, orderService)
+	courierFacade := cfservice.NewCourierFacade(courierService, orderService)
 
 	// инициализация контроллера курьеров
 	courierController := controller.NewCourierController(courierFacade)

@@ -172,6 +172,76 @@
     });
 
 
+    var markers = [];
+
+    // Функция для удаления маркеров для удаленных заказов
+    function removeMarkers(orders) {
+        // Проходимся по всем маркерам и удаляем только те, которые не соответствуют заказам на сервере
+        markers.forEach(function(marker) {
+            var orderExists = orders.some(function(order) {
+                return order.id === marker.order.id;
+            });
+            if (!orderExists) {
+                mymap.removeLayer(marker);
+                markers.splice(markers.indexOf(marker), 1);
+            }
+        });
+    }
+
+    // Функция для добавления маркеров для новых заказов
+    function addMarkers(orders) {
+        // Проходимся по всем заказам и добавляем маркеры только для тех, которых еще нет в массиве маркеров
+        orders.forEach(function(order) {
+            var markerExists = markers.some(function(marker) {
+                return order.id === marker.order.id;
+            });
+            if (!markerExists) {
+                var marker = L.marker([order.lat, order.lng], { icon: burgerIcon }).addTo(mymap);
+                marker.on('click', function() {
+                    const now = new Date();
+                    const expireDate = new Date(order.created_at);
+                    expireDate.setMinutes(expireDate.getMinutes() + 2);
+
+                    const remainingTimeInSeconds = Math.round((expireDate - now) / 1000);
+
+                    marker.bindPopup(`Осталось времени: ${remainingTimeInSeconds} секунд <br/>
+                    Цена: ${order.price} рублей <br/>
+                    Доставка: ${order.delivery_price} рублей<br/>
+                    Lat: ${order.lat} <br/>
+                    Lng: ${order.lng} <br/>
+                    `);
+                });
+                setInterval(function() {
+                    const now = new Date();
+                    const expireDate = new Date(order.created_at);
+                    expireDate.setMinutes(expireDate.getMinutes() + 2);
+
+                    const remainingTimeInSeconds = Math.round((expireDate - now) / 1000);
+
+                    marker.bindPopup(`Осталось времени: ${remainingTimeInSeconds} секунд <br/>
+                    Цена: ${order.price} рублей <br/>
+                    Доставка: ${order.delivery_price} рублей<br/>
+                    Lat: ${order.lat} <br/>
+                    Lng: ${order.lng} <br/>
+                    `);
+
+                    if (remainingTimeInSeconds < 15) {
+                        marker._icon.classList.add('blink');
+                    }
+                }, 1000);
+                marker.order = order;
+                markers.push(marker);
+            }
+        });
+    }
+
+    // Обновляем маркеры при получении новых данных от сервера
+    function updateMarkers(orders) {
+        removeMarkers(orders);
+        addMarkers(orders);
+    }
+
+
     function longPoll() {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -180,7 +250,7 @@
                 // get game status
                 var gameStatus = JSON.parse(this.responseText);
 
-                // updateMarkers(gameStatus.orders);
+                updateMarkers(gameStatus.orders);
                 courierMarker.moveTo([gameStatus.courier.location.lat, gameStatus.courier.location.lng], 500);
                 courierMarker.bindPopup(`
                     Lat: ${gameStatus.courier.location.lat} <br/>

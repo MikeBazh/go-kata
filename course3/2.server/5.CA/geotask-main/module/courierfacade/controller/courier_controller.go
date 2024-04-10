@@ -36,7 +36,7 @@ func (c *CourierController) GetStatus(ctx *gin.Context) {
 	// Получить статус курьера из сервиса courierService, используя метод GetStatus
 	status := c.courierService.GetStatus(ctx)
 	//resp := Courier{Location: Point{Lat: status.Courier.Location.Lat, Lng: status.Courier.Location.Lng}}
-	log.Println("CourierController, получение/отправка статуса:", status.Courier.Location)
+	//log.Println("CourierController, получение/отправка статуса:", status.Courier.Location)
 
 	// Подготовить данные для отправки в формате JSON
 	responseData := map[string]interface{}{
@@ -46,7 +46,14 @@ func (c *CourierController) GetStatus(ctx *gin.Context) {
 				"lng": status.Courier.Location.Lng,
 			},
 		},
+		"orders": status.Orders,
 	}
+	//responseData2:=models.CourierStatus{
+	//	Courier: cm.Courier{Score: 123, Location: cm.Point(Point{Lat: status.Courier.Location.Lat, Lng: status.Courier.Location.Lng})},
+	//	Orders: status.Orders,
+	//}
+
+	//log.Println("Courier controller orders: ", status.Orders)
 
 	// Отправить статус курьера в ответ
 	//ctx.JSON(http.StatusOK, gin.H{"status": status})
@@ -54,14 +61,12 @@ func (c *CourierController) GetStatus(ctx *gin.Context) {
 }
 
 func (c *CourierController) MoveCourier(m webSocketMessage) {
-	log.Println("im here")
 	var cm CourierMove
 	var err error
 
 	// Получить данные из m.Data и десериализовать их в структуру CourierMove
 	data, ok := m.Data.([]byte)
-
-	log.Println("Получено сообщение:", data)
+	//log.Println("Получено сообщение:", data)
 
 	if !ok {
 		// Обработать ошибку, если есть
@@ -69,7 +74,7 @@ func (c *CourierController) MoveCourier(m webSocketMessage) {
 		return
 	}
 	err = json.Unmarshal(data, &cm)
-	log.Println("Получено сообщение:", cm)
+	//log.Println("Получено сообщение:", cm)
 
 	if err != nil {
 		// Обработать ошибку, если есть

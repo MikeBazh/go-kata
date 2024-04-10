@@ -12,6 +12,7 @@ import (
 
 const (
 	CourierVisibilityRadius = 2800 // 2.8km
+	//CourierVisibilityRadius = 10000 // 2.8km
 )
 
 type CourierFacer interface {
@@ -29,7 +30,7 @@ func (cf *CourierFacade) MoveCourier(ctx context.Context, direction, zoom int) {
 	//log.SetOutput(os.Stdout)
 	// Вызываем метод MoveCourier из courierService
 	One, err := cf.courierService.GetCourier(ctx)
-	log.Println("CourierFacade получил координаты: ", One.Location)
+	//log.Println("CourierFacade получил координаты: ", One.Location)
 	_ = cf.courierService.MoveCourier(*One, direction, zoom)
 
 	if err != nil {
@@ -47,9 +48,9 @@ func (cf *CourierFacade) GetStatus(ctx context.Context) cfm.CourierStatus {
 
 	// Получаем статус курьера из courierService
 	One, err := cf.courierService.GetCourier(ctx)
-	log.Println("CourierFacade, получение/отправка статуса:", One.Location)
+	//log.Println("CourierFacade, получение/отправка статуса:", One.Location)
 	// Получаем заказы вокруг курьера из orderService
-	orders, err := cf.orderService.GetByRadius(ctx, One.Location.Lat, One.Location.Lng, CourierVisibilityRadius, "m")
+	orders, err := cf.orderService.GetByRadius(ctx, One.Location.Lng, One.Location.Lat, CourierVisibilityRadius, "m")
 	if err != nil {
 		// Обработка ошибки
 		log.Println(err)
@@ -63,7 +64,8 @@ func (cf *CourierFacade) GetStatus(ctx context.Context) cfm.CourierStatus {
 		},
 		Orders: orders,
 	}
-	log.Println(One.Location)
+	//log.Println(One.Location)
+	//log.Println("CourierFacade orders:", orders)
 	return courierStatus
 }
 

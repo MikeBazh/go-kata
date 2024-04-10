@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log"
 
 	//"github.com/go-redis/redis"
 	"github.com/go-redis/redis/v8"
@@ -30,7 +30,6 @@ func NewOrderStorage(storage *redis.Client) OrderStorager {
 }
 
 func (o *OrderStorage) Save(ctx context.Context, order models.Order, maxAge time.Duration) error {
-	// save with geo redis
 	return o.saveOrderWithGeo(ctx, order, maxAge)
 }
 
@@ -58,6 +57,7 @@ func (o *OrderStorage) GetByID(ctx context.Context, orderID int) (*models.Order,
 	orderJSON, err := o.storage.Get(ctx, "order:"+strconv.Itoa(orderID)).Bytes()
 	if err == redis.Nil {
 		// Если заказ не найден, возвращаем nil, nil (нет данных о заказе)
+		log.Println("GetByID заказ не найден")
 		return nil, nil
 	} else if err != nil {
 		// Если произошла другая ошибка, возвращаем ее
@@ -85,14 +85,14 @@ func (o *OrderStorage) saveOrderWithGeo(ctx context.Context, order models.Order,
 		return err
 	}
 
-	// Save the order in JSON format to Redis with a specific key
 	key := "orderID:" + strconv.FormatInt(order.ID, 10)
+	//log.Println("key: ", key)
 	err = o.storage.Set(ctx, key, string(orderJSON), maxAge).Err()
 	if err != nil {
+		log.Println("saveOrderWithGeo:", err)
 		return err
 	}
 
-	// Add the order to the geospatial index using GeoAdd
 	err = o.storage.GeoAdd(ctx, "orders_geo_index", &redis.GeoLocation{
 		Name:      key,
 		Longitude: order.Lng,
@@ -101,16 +101,15 @@ func (o *OrderStorage) saveOrderWithGeo(ctx context.Context, order models.Order,
 	if err != nil {
 		return err
 	}
+	//log.Println("GeoAdd: Added:", order, "err:", err)
 
-	// Save the order into a zset for easy retrieval based on the order creation time
 	_, err = o.storage.ZAdd(ctx, "orders", &redis.Z{
-		Score:  float64(order.CreatedAt.Unix()), // Use Unix timestamp as the score
+		Score:  float64(order.CreatedAt.Unix()),
 		Member: key,
 	}).Result()
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -134,6 +133,7 @@ func (o *OrderStorage) GetByRadius(ctx context.Context, lng, lat, radius float64
 	// обратите внимание, что в случае отсутствия заказов в радиусе
 	// метод getOrdersByRadius должен вернуть nil, nil (при ошибке redis.Nil)
 	if err == redis.Nil {
+		log.Println("OrderStorage: нет заказов в радиусе")
 		return nil, nil
 	}
 	if err != nil {
@@ -143,19 +143,22 @@ func (o *OrderStorage) GetByRadius(ctx context.Context, lng, lat, radius float64
 	// проходим по списку ID заказов и получаем данные о заказе
 	for _, orderLocation := range ordersLocation {
 		// получаем данные о заказе по ID из redis по ключу order:ID
-		data, err = o.storage.Get(ctx, "orderID:"+orderLocation.Name).Bytes()
+		//log.Println("REDIS:", "GET", orderLocation.Name)
+		//GetByID(ctx context.Context, orderID int) (*models.Order, error)
+		data, err = o.storage.Get(ctx, orderLocation.Name).Bytes()
 		if err != nil {
-			fmt.Println(err)
+			//log.Println("REDIS:", err)
 			continue
 		}
 		var order models.Order
 		err = json.Unmarshal(data, &order)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 		// Добавляем заказ в список
 		orders = append(orders, order)
+		//log.Println("OrderStorage: order:", order)
 	}
 	return orders, nil
 }

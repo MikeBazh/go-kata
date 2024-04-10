@@ -1,7 +1,9 @@
 package order
 
 import (
+	"context"
 	"gitlab.com/ptflp/geotask/module/order/service"
+	"log"
 	"time"
 )
 
@@ -20,6 +22,20 @@ func NewOrderCleaner(orderService service.Orderer) *OrderCleaner {
 }
 
 func (o *OrderCleaner) Run() {
+	ticker := time.NewTicker(orderGenerationInterval)
+	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	defer ticker.Stop()
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err := o.orderService.RemoveOldOrders(ctx)
+				if err != nil {
+					log.Printf("Ошибка при удалении старых заказов: %v", err)
+				}
+			}
+		}
+	}()
 	// исользовать горутину и select
 	// внутри горутины нужно использовать time.NewTicker()
 	// и вызывать метод orderService.RemoveOldOrders()

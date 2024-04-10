@@ -3,6 +3,7 @@ package geo
 import (
 	geo "github.com/kellydunn/golang-geo"
 	"math/rand"
+	"time"
 )
 
 type Point struct {
@@ -32,11 +33,15 @@ func (p Polygon) Allowed() bool {
 
 func (p Polygon) RandomPoint() Point {
 	// Generate random points until a point inside the polygon is found
+	//log.Println("Lat max, min:", p.MaxLat(), p.MinLat())
+	//log.Println("Lng max, min:", p.MaxLng(), p.MinLng())
+	randSource := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(randSource)
 	for {
 		// Generate random latitude and longitude within the bounding box of the polygon
-		randomLat := rand.Float64()*(p.MaxLat()-p.MinLat()) + p.MinLat()
-		randomLng := rand.Float64()*(p.MaxLng()-p.MinLng()) + p.MinLng()
-
+		randomLat := rnd.Float64()*(p.MaxLat()-p.MinLat()) + p.MinLat()
+		randomLng := rnd.Float64()*(p.MaxLng()-p.MinLng()) + p.MinLng()
+		//log.Println(p.Contains(Point{Lat: randomLat, Lng: randomLng}))
 		// Check if the random point is inside the polygon
 		if p.Contains(Point{Lat: randomLat, Lng: randomLng}) {
 			return Point{Lat: randomLat, Lng: randomLng}
@@ -60,15 +65,27 @@ func NewPolygon(points []Point, allowed bool) *Polygon {
 
 func CheckPointIsAllowed(point Point, allowedZone PolygonChecker, disabledZones []PolygonChecker) bool {
 	// проверить, находится ли точка в разрешенной зоне
-
-	return false
+	var checked = true
+	for _, disabledZone := range disabledZones {
+		if disabledZone.Contains(point) {
+			checked = false
+		}
+	}
+	if !allowedZone.Contains(point) {
+		checked = false
+	}
+	return checked
 }
 
 func GetRandomAllowedLocation(allowedZone PolygonChecker, disabledZones []PolygonChecker) Point {
 	var point Point
 	// получение случайной точки в разрешенной зоне
-
-	return point
+	for {
+		point = allowedZone.RandomPoint()
+		if CheckPointIsAllowed(point, allowedZone, disabledZones) {
+			return point
+		}
+	}
 }
 
 // полигоны лежат в /public/js/polygons.js
@@ -182,7 +199,7 @@ func (p Polygon) MaxLng() float64 {
 	var maxLng float64 = -90
 	for _, v := range p.polygon.Points() {
 		if v.Lng() > maxLng {
-			maxLng = v.Lat()
+			maxLng = v.Lng()
 		}
 	}
 	return maxLng
@@ -191,8 +208,8 @@ func (p Polygon) MaxLng() float64 {
 func (p Polygon) MinLng() float64 {
 	var minLng float64 = 90
 	for _, v := range p.polygon.Points() {
-		if v.Lat() < minLng {
-			minLng = v.Lat()
+		if v.Lng() < minLng {
+			minLng = v.Lng()
 		}
 	}
 	return minLng
