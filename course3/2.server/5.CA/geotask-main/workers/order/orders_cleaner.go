@@ -22,16 +22,20 @@ func NewOrderCleaner(orderService service.Orderer) *OrderCleaner {
 }
 
 func (o *OrderCleaner) Run() {
-	ticker := time.NewTicker(orderGenerationInterval)
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
-	defer ticker.Stop()
+	//ticker := time.NewTicker(orderCleanInterval)
+	//ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	//defer ticker.Stop()
 	go func() {
+		ticker := time.NewTicker(orderCleanInterval)
+		defer ticker.Stop()
 		for {
 			select {
 			case <-ticker.C:
+				ctx, _ := context.WithTimeout(context.Background(), time.Second)
 				err := o.orderService.RemoveOldOrders(ctx)
 				if err != nil {
 					log.Printf("Ошибка при удалении старых заказов: %v", err)
+					continue
 				}
 			}
 		}

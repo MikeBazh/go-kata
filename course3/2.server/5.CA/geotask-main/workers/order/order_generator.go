@@ -62,24 +62,3 @@ func (o *OrderGenerator) Run() {
 // если при генерации заказа произошла ошибка, то нужно вывести ее в лог
 // если при получении количества заказов произошла ошибка, то нужно вывести ее в лог
 // внутри горутины нужно использовать select и time.NewTicker()
-
-//for i := 1; i <= maxOrdersCount; i++ {
-//err := o.orderService.GenerateOrder(ctx)
-//if err != nil {
-//return
-//}
-//}
-//time.Sleep(orderGenerationInterval)
-//go func() {
-//	time.Sleep(orderGenerationInterval)
-//	num, err := o.orderService.GetCount(ctx)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	if num < maxOrdersCount {
-//		err := o.orderService.GenerateOrder(ctx)
-//		if err != nil {
-//			log.Println(err)
-//		}
-//	}
-//}()

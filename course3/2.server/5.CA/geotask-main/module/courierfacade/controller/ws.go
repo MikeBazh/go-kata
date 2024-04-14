@@ -39,7 +39,7 @@ type CourierMove struct {
 func deserializeMessage(msg []byte) (webSocketMessage, error) {
 	var m webSocketMessage
 	err := json.Unmarshal(msg, &m)
-	fmt.Println(err)
+	//fmt.Println(err)
 	if err != nil {
 		return m, err
 	}
@@ -72,7 +72,7 @@ func handleMessage(rawMessage []byte, f func(webSocketMessage)) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(err)
+	//fmt.Println(err)
 	f(m)
 
 	return nil

@@ -35,7 +35,6 @@ func (c *CourierController) GetStatus(ctx *gin.Context) {
 
 	// Получить статус курьера из сервиса courierService, используя метод GetStatus
 	status := c.courierService.GetStatus(ctx)
-	//resp := Courier{Location: Point{Lat: status.Courier.Location.Lat, Lng: status.Courier.Location.Lng}}
 	//log.Println("CourierController, получение/отправка статуса:", status.Courier.Location)
 
 	// Подготовить данные для отправки в формате JSON
@@ -48,15 +47,9 @@ func (c *CourierController) GetStatus(ctx *gin.Context) {
 		},
 		"orders": status.Orders,
 	}
-	//responseData2:=models.CourierStatus{
-	//	Courier: cm.Courier{Score: 123, Location: cm.Point(Point{Lat: status.Courier.Location.Lat, Lng: status.Courier.Location.Lng})},
-	//	Orders: status.Orders,
-	//}
-
 	//log.Println("Courier controller orders: ", status.Orders)
 
 	// Отправить статус курьера в ответ
-	//ctx.JSON(http.StatusOK, gin.H{"status": status})
 	ctx.JSON(http.StatusOK, responseData)
 }
 
@@ -91,6 +84,5 @@ func (c *CourierController) MoveCourier(m webSocketMessage) {
 	}
 
 	// Отправить ответ об успешном перемещении курьера
-
 	log.Println("Courier moved successfully")
 }

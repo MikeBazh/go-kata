@@ -38,15 +38,25 @@ func (o *OrderStorage) RemoveOldOrders(ctx context.Context, maxAge time.Duration
 	// используя метод ZRangeByScore
 	// старые ордеры это те, которые были созданы две минуты назад
 	// и более
-	/**
-	&redis.ZRangeBy{
-		Max: использовать вычисление времени с помощью maxAge,
+	maxTime := time.Now().Add(-maxAge).Unix()
+	oldOrderIDs, err := o.storage.ZRangeByScore(ctx, "orders", &redis.ZRangeBy{
 		Min: "0",
+		Max: strconv.FormatInt(maxTime, 10),
+	}).Result()
+	if err != nil {
+		return err
 	}
-	*/
 
 	// Проверить количество старых ордеров
+	if len(oldOrderIDs) == 0 {
+		return nil
+	}
+
 	// удалить старые ордеры из redis используя метод ZRemRangeByScore где ключ "orders" min "-inf" max "(время создания старого ордера)"
+	_, err = o.storage.ZRemRangeByScore(ctx, "orders", "-inf", strconv.FormatInt(maxTime, 10)).Result()
+	if err != nil {
+		return err
+	}
 	// удалять ордера по ключу не нужно, они будут удалены автоматически по истечению времени жизни
 
 	return nil
@@ -59,7 +69,8 @@ func (o *OrderStorage) GetByID(ctx context.Context, orderID int) (*models.Order,
 		// Если заказ не найден, возвращаем nil, nil (нет данных о заказе)
 		log.Println("GetByID заказ не найден")
 		return nil, nil
-	} else if err != nil {
+	}
+	if err != nil {
 		// Если произошла другая ошибка, возвращаем ее
 		return nil, err
 	}
@@ -79,14 +90,12 @@ func (o *OrderStorage) GetByID(ctx context.Context, orderID int) (*models.Order,
 func (o *OrderStorage) saveOrderWithGeo(ctx context.Context, order models.Order, maxAge time.Duration) error {
 	var err error
 
-	// Serialize the order into JSON
 	orderJSON, err := json.Marshal(order)
 	if err != nil {
 		return err
 	}
 
 	key := "orderID:" + strconv.FormatInt(order.ID, 10)
-	//log.Println("key: ", key)
 	err = o.storage.Set(ctx, key, string(orderJSON), maxAge).Err()
 	if err != nil {
 		log.Println("saveOrderWithGeo:", err)
@@ -144,7 +153,6 @@ func (o *OrderStorage) GetByRadius(ctx context.Context, lng, lat, radius float64
 	for _, orderLocation := range ordersLocation {
 		// получаем данные о заказе по ID из redis по ключу order:ID
 		//log.Println("REDIS:", "GET", orderLocation.Name)
-		//GetByID(ctx context.Context, orderID int) (*models.Order, error)
 		data, err = o.storage.Get(ctx, orderLocation.Name).Bytes()
 		if err != nil {
 			//log.Println("REDIS:", err)

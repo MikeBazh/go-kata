@@ -62,7 +62,7 @@ func (o *OrderService) GetCount(ctx context.Context) (int, error) {
 }
 
 func (o *OrderService) RemoveOldOrders(ctx context.Context) error {
-	err := o.storage.RemoveOldOrders(ctx, 0)
+	err := o.storage.RemoveOldOrders(ctx, orderMaxAge)
 	if err != nil {
 		return err
 	}
