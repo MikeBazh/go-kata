@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  server:
+    build: .
+    container_name: geoservice
+    restart: always
+    volumes:
+      - "./public:/app/public"
+    ports:
+      - 8080:8080
+  server-rpc:
+    build: ./internal/rpc
+    container_name: geoprovider
+    restart: always
+    ports:
+      - 8070:8070
