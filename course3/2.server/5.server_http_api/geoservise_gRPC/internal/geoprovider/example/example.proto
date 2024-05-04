@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package main;
+
+option go_package = ".";
+
+service Greeter {
+  rpc GeoCode(GeoArgs) returns (GeoReply) {}
+  rpc AddressSearch(QueryAddr) returns (SearchReply) {}
+}
+
+message GeoArgs {
+  string lat = 1;
+  string lon = 2;
+}
+
+message QueryAddr {
+  string queryAddr = 1;
+}
+
+message GeoReply {
+  repeated Address addresses = 1;
+}
+
+message SearchReply {
+  repeated Address addresses = 1;
+}
+
+message Address {
+  string value = 1;
+  string unrestricted_value = 2;
+  Data data = 3;
+}
+
+message Data {
+  string source = 1;
+  string result = 2;
+  string postal_code = 3;
+  string country = 4;
+  string country_iso_code = 5;
+  string federal_district = 6;
+  string region_fias_id = 7;
+  string region_kladr_id = 8;
+  string region_iso_code = 9;
+  string region_with_type = 10;
+  string region_type = 11;
+  string region_type_full = 12;
+  string region = 13;
+  string area_fias_id = 14;
+  string area_kladr_id = 15;
+  string area_with_type = 16;
+  string area_type = 17;
+  string area_type_full = 18;
+  string area = 19;
+  string city_fias_id = 20;
+  string city_kladr_id = 21;
+  string city_with_type = 22;
+  string city_type = 23;
+  string city_type_full = 24;
+  string city = 25;
+  string city_area = 26;
+  string city_district_fias_id = 27;
+  string city_district_kladr_id = 28;
+  string city_district_with_type = 29;
+  string city_district_type = 30;
+  string city_district_type_full = 31;
+  string city_district = 32;
+  string settlement_fias_id = 33;
+  string settlement_kladr_id = 34;
+  string settlement_with_type = 35;
+  string settlement_type = 36;
+  string settlement_type_full = 37;
+  string settlement = 38;
+  string street_fias_id = 39;
+  string street_kladr_id = 40;
+  string street_with_type = 41;
+  string street_type = 42;
+  string street_type_full = 43;
+  string street = 44;
+  string house_fias_id = 45;
+  string house_kladr_id = 46;
+  string house_type = 47;
+  string house_type_full = 48;
+  string house = 49;
+  string house_cadnum = 50;
+  string block_type = 51;
+  string block_type_full = 52;
+  string block = 53;
+  string entrance = 54;
+  string floor = 55;
+  string flat_fias_id = 56;
+  string flat_type = 57;
+  string flat_type_full = 58;
+  string flat = 59;
+  string flat_area = 60;
+  string flat_cadnum = 61;
+  string square_meter_price = 62;
+  string flat_price = 63;
+  string postal_box = 64;
+  string fias_id = 65;
+  string fias_code = 66;
+  string fias_level = 67;
+  string fias_actuality_state = 68;
+  string kladr_id = 69;
+  string capital_marker = 70;
+  string okato = 71;
+  string oktmo = 72;
+  string tax_office = 73;
+  string tax_office_legal = 74;
+  string timezone = 75;
+  string geo_lat = 76;
+  string geo_lon = 77;
+  string beltway_hit = 78;
+  string beltway_distance = 79;
+  string qc_geo = 80;
+  string qc_complete = 81;
+  string qc_house = 82;
+  string qc = 83;
+  string unparsed_parts = 84;
+}
