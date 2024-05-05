@@ -2,14 +2,37 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"go-kata/2.server/5.server_http_api/geoservise_gRPC/internal/geoprovider/Dadata"
 	"go-kata/2.server/5.server_http_api/geoservise_gRPC/internal/geoprovider/dto"
 	pb "go-kata/2.server/5.server_http_api/geoservise_gRPC/internal/geoprovider/example"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"net/rpc"
+	"net/rpc/jsonrpc"
 )
+
+type GeoService struct {
+	// Здесь могут быть поля для хранения информации о провайдерах и других конфигурационных данных.
+}
+
+func (g *GeoService) AddressSearch(args string, reply *[]*dto.Address) error {
+	newSearchResponse, err := Dadata.AskByQuery(args)
+	if err != nil {
+		return err
+	}
+	*reply = newSearchResponse.Addresses
+	return nil
+}
+
+func (g *GeoService) GeoCode(args *dto.GeoArgs, reply *[]*dto.Address) error {
+	newSearchResponse, err := Dadata.AskByGeo(args.Lat, args.Lon)
+	if err != nil {
+		return err
+	}
+	*reply = newSearchResponse.Addresses
+	return nil
+}
 
 type server struct {
 	pb.UnimplementedGreeterServer
@@ -32,16 +55,66 @@ func (s *server) AddressSearch(ctx context.Context, args *pb.QueryAddr) (*pb.Sea
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":50051")
-	fmt.Println("server started on port:50051")
+	//запуск gRPC сервера
+	go func() {
+		lis, err := net.Listen("tcp", ":50051")
+		log.Println("gRPC server started on port :50051")
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+		s := grpc.NewServer()
+		pb.RegisterGreeterServer(s, &server{})
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	geoService := new(GeoService)
+	rpc.Register(geoService)
+
+	//запуск RPC сервера
+	listener, err := net.Listen("tcp", ":8070")
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal("Error starting RPC server:", err)
 	}
-	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &server{})
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	log.Println("RPC server started on port 8070")
+
+	//запуск json-RPC сервера
+	listenerJsonRpc, err := net.Listen("tcp", ":8060")
+	if err != nil {
+		log.Fatal("Listen error:", err)
 	}
+	log.Println("JsonRPC server started on port 8060")
+
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				log.Println("Accept error:", err)
+				continue
+			}
+			go func(conn net.Conn) {
+				defer conn.Close()
+				rpc.ServeConn(conn)
+			}(conn)
+		}
+	}()
+
+	go func() {
+		for {
+			connJsonRpc, err := listenerJsonRpc.Accept()
+			if err != nil {
+				log.Println("Accept error:", err)
+				continue
+			}
+			go func(connJsonRpc net.Conn) {
+				defer connJsonRpc.Close()
+				jsonrpc.ServeConn(connJsonRpc)
+			}(connJsonRpc)
+		}
+	}()
+
+	select {} // для предотвращения завершения программы
 }
 
 func ConvertAddresses(addresses []*dto.Address) []*pb.Address {
