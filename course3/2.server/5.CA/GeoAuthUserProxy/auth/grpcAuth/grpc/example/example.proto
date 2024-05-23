@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package main;
+
+option go_package = ".";
+
+service TokenValidationService {
+  rpc ValidateToken (TokenRequest) returns (TokenResponse) {}
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message TokenResponse {
+  bool valid = 1;
+  string error_message = 2;
+}
