@@ -1,0 +1,143 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Документация по сервису User.",
+    "title": "User.",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Введите токен в формате Bearer {token}"
+    }
+  },
+  "paths": {
+    "/api/user/list": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Вывод списка пользователей.",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ListUsers"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/user/profile": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": [
+              "[]"
+            ]
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "summary": "Вывод пользователя по Email.",
+        "operationId": "GetUserResponse",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "UserEmail",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "403": {
+            "$ref": "#/responses/Forbidden"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/GeoAuthUserProxy/user/dto"
+    }
+  },
+  "responses": {
+    "BadRequestResponse": {
+      "description": "Ошибка, неверный формат запроса."
+    },
+    "Forbidden": {
+      "description": "Токен авторизации не валиден."
+    },
+    "GetUserResponse": {
+      "description": "Вывод профиля пользователя.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера."
+    },
+    "ListUsers": {
+      "description": "Pезультат запроса списка пользователей.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    }
+  }
+}
