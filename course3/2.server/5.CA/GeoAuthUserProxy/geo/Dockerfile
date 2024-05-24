@@ -17,8 +17,5 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env .
 
-# Открываем порт 8080
-EXPOSE 8080
-
 # Запускаем приложение
 CMD ["/app/main"]
