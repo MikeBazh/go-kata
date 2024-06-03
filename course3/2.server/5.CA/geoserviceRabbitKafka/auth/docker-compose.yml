@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  auth:
+    build: .
+    networks:
+      - mynetwork
+    container_name: auth
+    restart: always
+    volumes:
+      - "./public:/app/public"
+
+  auth-grpc:
+    build: grpcAuth/grpc
+    networks:
+      - mynetwork
+    container_name: grpcAuth
+    restart: always
+networks:
+  mynetwork:
+    external: true

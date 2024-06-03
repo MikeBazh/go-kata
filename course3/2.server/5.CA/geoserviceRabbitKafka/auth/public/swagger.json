@@ -1,0 +1,115 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Документация по Auth.",
+    "title": "Auth.",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "login"
+        ],
+        "summary": "Аутентификация пользователя.",
+        "operationId": "LoginRequest",
+        "parameters": [
+          {
+            "description": "запрос для аутентификации пользователя.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/LoginResponse"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "register"
+        ],
+        "summary": "Регистрация нового пользователя.",
+        "operationId": "RegisterRequest",
+        "parameters": [
+          {
+            "description": "запрос для регистрации пользователя.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/RegisterResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AuthToken": {
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "description": "Токен для аутентификации пользователя.\nin: header\nname: Authorization",
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/geoservice_auth/docs"
+    },
+    "RegisterRequest": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "x-go-name": "Login"
+        },
+        "password": {
+          "type": "string",
+          "x-go-name": "Password"
+        }
+      },
+      "x-go-package": "go-kata/2.server/5.CA/geoservice_auth/controller"
+    }
+  },
+  "responses": {
+    "InternalServerErrorResponse": {
+      "description": "Внутренняя ошибка сервера."
+    },
+    "LoginResponse": {
+      "description": "получен токен авторизации (в формате: Bearer + токен) или ошибка входа.",
+      "schema": {
+        "type": "string"
+      }
+    },
+    "RegisterResponse": {
+      "description": "успешная регистрация нового пользователя.",
+      "schema": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  notifier-rmq:
+    build: .
+    networks:
+      - mynetwork
+    container_name: notifier-rmq
+    restart: always
+networks:
+  mynetwork:
+    external: true
+
