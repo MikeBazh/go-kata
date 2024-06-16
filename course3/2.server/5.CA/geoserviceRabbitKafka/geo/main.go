@@ -40,14 +40,24 @@ func main() {
 		DB:       redisDB,                     // Индекс базы данных
 	})
 
+	MessageProtocol := os.Getenv("MESSAGE_PROTOCOL")
+
+	if !(MessageProtocol == "RabbitMQ" || MessageProtocol == "kafka") {
+		log.Fatalf("Server error: Protocol must be set to 'RabbitMQ' or 'kafka'")
+	}
+
+	// Создание экземпляра сервиса
+	//servicer := services.NewService(MessageProtocol)
+
 	// Создание экземпляра сервиса
 	storager := storage.NewUserStorage()
+	mesenger := services.NewMessanger(MessageProtocol)
 	servicer := services.NewService(storager)
 	proxyServicer := services.NewServiceProxy(*servicer, *client)
 
 	// Создание экземпляра контроллера
 	responder := responder.NewResponder()
-	UserController := controller.NewUserController(responder, servicer, *proxyServicer)
+	UserController := controller.NewUserController(responder, servicer, mesenger, *proxyServicer)
 
 	r := chi.NewRouter()
 

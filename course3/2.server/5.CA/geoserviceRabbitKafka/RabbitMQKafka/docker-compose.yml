@@ -7,7 +7,7 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - mynetwork
+      -  kafka-network
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -28,6 +28,7 @@ services:
     depends_on:
       - zookeeper
     networks:
+      - kafka-network
       - mynetwork
 
   rabbitmq:
@@ -40,5 +41,7 @@ services:
       - mynetwork
 
 networks:
+  kafka-network:
+    driver: bridge
   mynetwork:
     external: true

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  consumerkafka:
+    build: .
+    networks:
+      - mynetwork
+    container_name: consumerkafka
+    restart: always
+networks:
+  mynetwork:
+    external: true
+

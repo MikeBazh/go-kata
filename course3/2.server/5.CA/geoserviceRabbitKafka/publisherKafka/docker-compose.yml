@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  publisherkafka:
+    build: .
+    networks:
+      - mynetwork
+    container_name: publisherkafka
+    restart: always
+    expose:
+      - "8070"
+    environment:
+      KAFKA_BROKER_ADDRESS: "kafka:9093"
+networks:
+  mynetwork:
+    external: true

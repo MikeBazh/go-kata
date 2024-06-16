@@ -23,13 +23,15 @@ const (
 type UserController struct {
 	responder     responder.Responder
 	servicer      services.Servicer
+	messenger     services.MessangerService
 	proxyservicer services.ServiceProxy
 }
 
-func NewUserController(responder responder.Responder, servicer services.Servicer, proxyservicer services.ServiceProxy) *UserController {
+func NewUserController(responder responder.Responder, servicer services.Servicer, messenger services.MessangerService, proxyservicer services.ServiceProxy) *UserController {
 	return &UserController{
 		responder:     responder,
 		servicer:      servicer,
+		messenger:     messenger,
 		proxyservicer: proxyservicer,
 	}
 }
@@ -51,7 +53,7 @@ func (c *UserController) SearchByQuery(w http.ResponseWriter, r *http.Request) {
 	//respond, err := c.proxyservicer.SearchByQuery(requestBody.Query)
 	respond, err, limited := c.servicer.SearchByQuery(requestBody.Query)
 	if limited {
-		err = c.servicer.SendRateLimitExceededMessage(email)
+		err = c.messenger.SendRateLimitExceededMessage(email)
 		if err != nil {
 			fmt.Println("Error sending rate limit message")
 		}
@@ -85,7 +87,7 @@ func (c *UserController) SearchByGeo(w http.ResponseWriter, r *http.Request) {
 	//respond, err := c.proxyservicer.SearchByGeo(requestBody.Lat, requestBody.Lng)
 	respond, err, limited := c.servicer.SearchByGeo(requestBody.Lat, requestBody.Lng)
 	if limited {
-		err = c.servicer.SendRateLimitExceededMessage(email)
+		err = c.messenger.SendRateLimitExceededMessage(email)
 		if err != nil {
 			fmt.Println("Error sending rate limit message")
 		}

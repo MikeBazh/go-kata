@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	connStr = "host=db user=postgres password=123 dbname=postgres sslmode=disable"
+	connStr = "host=dbUser user=postgres password=123 dbname=postgres sslmode=disable"
 	//connStr = "host=172.17.0.2 user=postgres password=123/ dbname=postgres sslmode=disable"
 )
 

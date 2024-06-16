@@ -6,11 +6,22 @@ import (
 	"github.com/streadway/amqp"
 	"gitlab.com/ptflp/gopubsub/queue"
 	"gitlab.com/ptflp/gopubsub/rabbitmq"
+	"net/rpc"
 )
 
 var (
 	rmq queue.MessageQueuer
 )
+
+type MessangerKafka struct {
+}
+
+type MessangerRabbitMQ struct {
+}
+
+type MessangerService interface {
+	SendRateLimitExceededMessage(email string) error
+}
 
 type NotificationMessage struct {
 	Email string
@@ -18,7 +29,7 @@ type NotificationMessage struct {
 }
 
 // sendRateLimitExceededMessage отправляет сообщение в RabbitMQ о превышении лимита
-func (s *Service) SendRateLimitExceededMessage(email string) error {
+func (s *MessangerRabbitMQ) SendRateLimitExceededMessage(email string) error {
 	// Установка соединения с RabbitMQ
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
@@ -51,5 +62,27 @@ func (s *Service) SendRateLimitExceededMessage(email string) error {
 		return fmt.Errorf("failed to publish message to RabbitMQ: %w", err)
 	}
 	fmt.Println("Rate limit exceeded message sent to RabbitMQ, user - ", email)
+	return nil
+}
+
+type SendMessageArgs struct {
+	Message []byte
+}
+
+// sendRateLimitExceededMessage отправляет сообщение в RabbitMQ о превышении лимита
+func (s *MessangerKafka) SendRateLimitExceededMessage(email string) error {
+	client, err := rpc.Dial("tcp", "publisherkafka:8070")
+	//var reply []*dto.Address
+	if err != nil {
+		fmt.Println("Ошибка при подключении к серверу:", err)
+		return err
+	}
+	args := &SendMessageArgs{Message: []byte(email)}
+	var reply *bool
+	err = client.Call("KafkaPublisher.SendMessage", args, reply)
+	if err != nil {
+		fmt.Println("Ошибка при вызове удаленного метода:", err)
+		return err
+	}
 	return nil
 }

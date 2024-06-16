@@ -18,19 +18,41 @@ type Servicer interface {
 	//LoginUser(login, password string) (string, error)
 	SearchByQuery(Query string) (Dadata.SearchResponse, error, bool)
 	SearchByGeo(Lat string, Lng string) (Dadata.GeocodeResponse, error, bool)
-	SendRateLimitExceededMessage(email string) error
+	//SendRateLimitExceededMessage(email string) error
+}
+
+func NewService(UserStorage storage.UserRepository) *Service {
+	return &Service{UserStorage: UserStorage}
+}
+
+func NewMessanger(protocol string) MessangerService {
+	switch protocol {
+	case "kafka":
+		return &MessangerKafka{}
+	case "RabbitMQ":
+		return &MessangerRabbitMQ{}
+	default:
+		return nil
+	}
 }
 
 type Service struct {
 	UserStorage storage.UserRepository
 }
 
-func NewService(UserStorage storage.UserRepository) *Service {
-	return &Service{
-		UserStorage: UserStorage,
-		//UserCache:   UserCache,
-	}
+type Messanger struct {
 }
+
+//func (s *Service) SendRateLimitExceededMessage(email string) error {
+//	return nil
+//}
+
+//func NewService(UserStorage storage.UserRepository) *Service {
+//	return &Service{
+//		UserStorage: UserStorage,
+//		//UserCache:   UserCache,
+//	}
+//}
 
 type ServiceProxy struct {
 	Service Servicer

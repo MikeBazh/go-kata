@@ -1,4 +1,4 @@
-module go-kata/2.server/5.CA/RabbitMQ/gopubsub-main
+module go-kata/2.server/5.CA/RabbitMQKafka/gopubsub-main
 
 go 1.19
 
